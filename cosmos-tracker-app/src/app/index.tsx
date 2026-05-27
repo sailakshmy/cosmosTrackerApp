@@ -8,6 +8,7 @@ import { ThemedView } from "@/components/themed-view";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
 import { useTheme } from "@/hooks/use-theme";
+import ThemeSwitcher from "@/components/theme-switcher";
 
 export default function HomeScreen() {
   const { loading, apodData } = useApodHook();
@@ -33,6 +34,7 @@ export default function HomeScreen() {
                   <ThemedText type="subtitle" themeColor="accent">
                     Cosmos Tracker
                   </ThemedText>
+                  <ThemeSwitcher />
                   <ThemedText type="title">
                     {loading ? "Loading today's cosmos..." : apodData?.title}
                   </ThemedText>
