@@ -1,7 +1,4 @@
-import {
-  fetchImageForSelectedDate,
-  fetchISOStringDate,
-} from "@/utilities/helper";
+import { fetchImageForSelectedDate } from "@/utilities/helper";
 import { useEffect, useState } from "react";
 
 const useApodHook = () => {
@@ -12,16 +9,15 @@ const useApodHook = () => {
     src: "",
   });
   const [loading, setLoading] = useState(true);
+  const [date, setDate] = useState(new Date());
 
   const fetchImage = async () => {
-    const date = fetchISOStringDate(new Date());
     console.log(
       "process.env.EXPO_PUBLIC_APOD_BASE_URL",
       process.env.EXPO_PUBLIC_APOD_BASE_URL,
     );
     try {
       const apodPic = await fetchImageForSelectedDate(date);
-      console.log("apod Mobile", apodPic);
 
       setApodData({
         title: apodPic?.title,
@@ -29,6 +25,10 @@ const useApodHook = () => {
         src: apodPic?.url,
         mediaType: apodPic?.method_type,
       });
+      if (apodPic?.date) {
+        const newDate = new Date(apodPic?.date);
+        setDate(newDate);
+      }
     } catch (e) {
       console.log("Error", e);
     } finally {
@@ -37,10 +37,13 @@ const useApodHook = () => {
   };
   useEffect(() => {
     fetchImage();
-  }, []);
+  }, [date]);
+
   return {
     loading,
     apodData,
+    date,
+    setDate,
   };
 };
 

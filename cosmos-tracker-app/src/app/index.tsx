@@ -9,9 +9,10 @@ import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
 import { useTheme } from "@/hooks/use-theme";
 import ThemeSwitcher from "@/components/theme-switcher";
+import InlineDatePicker from "@/components/date-picker";
 
 export default function HomeScreen() {
-  const { loading, apodData } = useApodHook();
+  const { loading, apodData, date, setDate } = useApodHook();
   const theme = useTheme();
 
   return (
@@ -40,13 +41,9 @@ export default function HomeScreen() {
                   </ThemedText>
                 </View>
 
-                {/* <View className="gap-4 ">
-                <InlineDatePicker
-                  date={date}
-                  setDate={setDate}
-                  darkTheme={isDark}
-                />
-              </View> */}
+                <View>
+                  <InlineDatePicker date={date} setDate={setDate} />
+                </View>
 
                 <View style={styles.imageContainer}>
                   <Image

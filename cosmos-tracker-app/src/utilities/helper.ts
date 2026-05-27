@@ -1,10 +1,12 @@
 export const fetchISOStringDate = (date: Date) =>
   date?.toISOString()?.split("T")?.[0];
 
-export const fetchImageForSelectedDate = async (date: string) => {
-  const apodData = await fetch(
-    `${process.env.EXPO_PUBLIC_APOD_BASE_URL}?date=${"2026-05-25"}`,
+export const fetchImageForSelectedDate = async (selectedDate: Date) => {
+  const date = fetchISOStringDate(selectedDate);
+  let apodData = await fetch(
+    `${process.env.EXPO_PUBLIC_APOD_BASE_URL}?date=${date}`,
   );
-  const apod = await apodData.json();
-  return apod?.data;
+  let apod = await apodData.json();
+
+  if (apod) return apod?.data;
 };
