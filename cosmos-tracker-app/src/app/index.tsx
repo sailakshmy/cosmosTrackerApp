@@ -14,6 +14,8 @@ import InlineDatePicker from "@/components/date-picker";
 export default function HomeScreen() {
   const { loading, apodData, date, setDate } = useApodHook();
   const theme = useTheme();
+  const blurhash =
+    "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
   return (
     <ScrollView>
@@ -36,21 +38,21 @@ export default function HomeScreen() {
                     Cosmos Tracker
                   </ThemedText>
                   <ThemeSwitcher />
+                  <View>
+                    <InlineDatePicker date={date} setDate={setDate} />
+                  </View>
                   <ThemedText type="title">
                     {loading ? "Loading today's cosmos..." : apodData?.title}
                   </ThemedText>
                 </View>
 
-                <View>
-                  <InlineDatePicker date={date} setDate={setDate} />
-                </View>
-
                 <View style={styles.imageContainer}>
                   <Image
                     style={styles.image}
-                    source={apodData?.src}
-                    // placeholder={{ blurhash }}
+                    source={apodData?.src ? { uri: apodData?.src } : undefined}
+                    placeholder={{ blurhash }}
                     contentFit="cover"
+                    onError={(error) => console.log("Image load error", error)}
                   />
                 </View>
 

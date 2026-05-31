@@ -22,8 +22,8 @@ const useApodHook = () => {
       setApodData({
         title: apodPic?.title,
         description: apodPic?.explanation,
-        src: apodPic?.url,
-        mediaType: apodPic?.method_type,
+        src: apodPic?.hdurl,
+        mediaType: apodPic?.media_type,
       });
       if (apodPic?.date) {
         const newDate = new Date(apodPic?.date);
