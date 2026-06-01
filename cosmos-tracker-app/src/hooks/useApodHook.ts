@@ -1,5 +1,6 @@
 import { fetchImageForSelectedDate } from "@/utilities/helper";
 import { useEffect, useState } from "react";
+import { useTheme } from "./use-theme";
 
 const useApodHook = () => {
   const [apodData, setApodData] = useState({
@@ -38,12 +39,27 @@ const useApodHook = () => {
   useEffect(() => {
     fetchImage();
   }, [date]);
+  const theme = useTheme();
+  const [imageLoading, setImageLoading] = useState(true);
+  const imageSource = apodData?.src ? { uri: apodData.src } : undefined;
+  const showImageSkeleton = loading || imageLoading || !imageSource;
+  const blurhash =
+    "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+
+  useEffect(() => {
+    setImageLoading(Boolean(imageSource));
+  }, [imageSource?.uri]);
 
   return {
     loading,
     apodData,
     date,
     setDate,
+    theme,
+    showImageSkeleton,
+    blurhash,
+    imageSource,
+    setImageLoading,
   };
 };
 

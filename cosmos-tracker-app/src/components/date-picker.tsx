@@ -8,7 +8,12 @@ import { fetchISOStringDate } from "@/utilities/helper";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useTheme } from "@/hooks/use-theme";
 
-const InlineDatePicker = ({ date, setDate }) => {
+interface InlineDatePickerProps {
+  date: Date;
+  setDate: React.Dispatch<React.SetStateAction<Date>>;
+}
+
+const InlineDatePicker = ({ date, setDate }: InlineDatePickerProps) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const theme = useTheme();
   console.log("props", date);
@@ -19,7 +24,7 @@ const InlineDatePicker = ({ date, setDate }) => {
   };
   const onPressCalendarIcon = () => {
     console.log("Clicked the calendar icon");
-    setShowDatePicker(true);
+    setShowDatePicker((prev) => !prev);
   };
   return (
     <View>

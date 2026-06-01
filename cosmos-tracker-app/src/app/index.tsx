@@ -1,21 +1,28 @@
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 
+import { ImageSkeleton } from "@/components/image-skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
-import { useTheme } from "@/hooks/use-theme";
 import ThemeSwitcher from "@/components/theme-switcher";
 import InlineDatePicker from "@/components/date-picker";
 
 export default function HomeScreen() {
-  const { loading, apodData, date, setDate } = useApodHook();
-  const theme = useTheme();
-  const blurhash =
-    "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+  const {
+    apodData,
+    date,
+    setDate,
+    theme,
+    imageSource,
+    blurhash,
+    setImageLoading,
+    showImageSkeleton,
+  } = useApodHook();
 
   return (
     <ScrollView>
@@ -41,19 +48,24 @@ export default function HomeScreen() {
                   <View>
                     <InlineDatePicker date={date} setDate={setDate} />
                   </View>
-                  <ThemedText type="title">
-                    {loading ? "Loading today's cosmos..." : apodData?.title}
-                  </ThemedText>
+                  <ThemedText type="title">{apodData?.title}</ThemedText>
                 </View>
 
                 <View style={styles.imageContainer}>
                   <Image
                     style={styles.image}
-                    source={apodData?.src ? { uri: apodData?.src } : undefined}
+                    source={imageSource}
                     placeholder={{ blurhash }}
                     contentFit="contain"
-                    onError={(error) => console.log("Image load error", error)}
+                    onLoad={() => setImageLoading(false)}
+                    onError={(error) => {
+                      setImageLoading(false);
+                      console.log("Image load error", error);
+                    }}
                   />
+                  {showImageSkeleton && (
+                    <ImageSkeleton style={styles.imageSkeleton} />
+                  )}
                 </View>
 
                 <View style={styles.descriptionStack}>
@@ -120,6 +132,9 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
+  },
+  imageSkeleton: {
+    ...StyleSheet.absoluteFill,
   },
   description: {
     textAlign: "center",
