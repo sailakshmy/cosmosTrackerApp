@@ -10,6 +10,8 @@ const InlineDatePicker = ({ date, setDate }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   console.log("props", date);
   const onChangeDate = (_e: DateTimePickerChangeEvent, selectedDate: any) => {
+    setShowDatePicker(false);
+    // showDatePickerRef.current = false;
     console.log("Selected", selectedDate);
     setDate(selectedDate);
   };
@@ -17,17 +19,21 @@ const InlineDatePicker = ({ date, setDate }) => {
     <View>
       <Pressable
         accessibilityRole="button"
-        onPress={() => setShowDatePicker(true)}
+        onPress={() => {
+          console.log("Clicked the date");
+          setShowDatePicker(true);
+          // showDatePickerRef.current = true;
+        }}
       >
         <ThemedText>
-          Click here to change the date:{fetchISOStringDate(date)}
+          Click here to change the date: {fetchISOStringDate(date)}
         </ThemedText>
       </Pressable>
       {showDatePicker && (
         <DateTimePicker
           value={date}
           onValueChange={onChangeDate}
-          maximumDate={date}
+          maximumDate={new Date()}
         />
       )}
     </View>
