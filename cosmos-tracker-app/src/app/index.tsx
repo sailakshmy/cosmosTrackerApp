@@ -51,7 +51,7 @@ export default function HomeScreen() {
                     style={styles.image}
                     source={apodData?.src ? { uri: apodData?.src } : undefined}
                     placeholder={{ blurhash }}
-                    contentFit="cover"
+                    contentFit="contain"
                     onError={(error) => console.log("Image load error", error)}
                   />
                 </View>
