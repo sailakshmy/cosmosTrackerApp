@@ -3,10 +3,12 @@ export const fetchISOStringDate = (date: Date) =>
 
 export const fetchImageForSelectedDate = async (selectedDate: Date) => {
   const date = fetchISOStringDate(selectedDate);
-  let apodData = await fetch(
+  console.log("date", date);
+  const apodData = await fetch(
     `${process.env.EXPO_PUBLIC_APOD_BASE_URL}?date=${date}`,
   );
-  let apod = await apodData.json();
-
+  console.log("apodData", apodData);
+  const apod = await apodData.json();
+  console.log("apod", apod);
   if (apod) return apod?.data;
 };
