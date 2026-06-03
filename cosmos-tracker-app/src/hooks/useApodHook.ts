@@ -28,7 +28,7 @@ const useApodHook = () => {
     setApodData({
       title: apodPic?.title,
       description: apodPic?.explanation,
-      src: apodPic?.hdurl,
+      src: apodPic?.url,
       mediaType: apodPic?.media_type,
     });
     if (apodPic?.date && apodPic.date !== selectedDate) {
@@ -50,15 +50,17 @@ const useApodHook = () => {
   });
 
   const theme = useTheme();
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(isLoading);
+  console.log("Media source", apodData?.src);
   const imageSource = apodData?.src ? { uri: apodData.src } : undefined;
+  console.log("imageSource", imageSource);
   const showImageSkeleton = isLoading || imageLoading || !imageSource;
   const blurhash =
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
   useEffect(() => {
-    setImageLoading(Boolean(imageSource));
-  }, [imageSource?.uri]);
+    setImageLoading(Boolean(imageSource) || isLoading);
+  }, [imageSource?.uri, isLoading]);
 
   return {
     isLoading,

@@ -11,6 +11,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
 import ThemeSwitcher from "@/components/theme-switcher";
 import InlineDatePicker from "@/components/date-picker";
+import VideoScreen from "@/components/video-player";
 
 export default function HomeScreen() {
   const {
@@ -25,6 +26,7 @@ export default function HomeScreen() {
     isLoading,
   } = useApodHook();
   console.log("Here", isLoading);
+  console.log("showImageSkeleton", showImageSkeleton);
   return (
     <ScrollView>
       <ThemedView style={styles.container}>
@@ -55,22 +57,27 @@ export default function HomeScreen() {
                 ) : (
                   <>
                     <ThemedText type="title">{apodData?.title}</ThemedText>
-                    <View style={styles.imageContainer}>
-                      <Image
-                        style={styles.image}
-                        source={imageSource}
-                        placeholder={{ blurhash }}
-                        contentFit="contain"
-                        onLoad={() => setImageLoading(false)}
-                        onError={(error) => {
-                          setImageLoading(false);
-                          console.log("Image load error", error);
-                        }}
-                      />
-                      {showImageSkeleton && (
-                        <ImageSkeleton style={styles.imageSkeleton} />
-                      )}
-                    </View>
+                    {apodData?.mediaType === "image" && (
+                      <View style={styles.imageContainer}>
+                        <Image
+                          style={styles.image}
+                          source={imageSource}
+                          placeholder={{ blurhash }}
+                          contentFit="contain"
+                          onLoad={() => setImageLoading(false)}
+                          onError={(error) => {
+                            setImageLoading(false);
+                            console.log("Image load error", error);
+                          }}
+                        />
+                        {showImageSkeleton && (
+                          <ImageSkeleton style={styles.imageSkeleton} />
+                        )}
+                      </View>
+                    )}
+                    {apodData?.mediaType === "video" && (
+                      <VideoScreen videoSource={apodData?.src} />
+                    )}
                     <View style={styles.descriptionStack}>
                       <ThemedText
                         style={styles.description}
