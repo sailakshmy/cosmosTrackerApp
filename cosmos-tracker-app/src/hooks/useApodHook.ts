@@ -1,6 +1,10 @@
-import { fetchImageForSelectedDate } from "@/utilities/helper";
+import {
+  fetchImageForSelectedDate,
+  fetchISOStringDate,
+} from "@/utilities/helper";
 import { useEffect, useState } from "react";
 import { useTheme } from "./use-theme";
+import { useQuery } from "@tanstack/react-query";
 
 const useApodHook = () => {
   const [apodData, setApodData] = useState({
@@ -9,40 +13,46 @@ const useApodHook = () => {
     mediaType: "",
     src: "",
   });
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date());
+  const selectedDate = fetchISOStringDate(date);
 
-  const fetchImage = async () => {
+  const fetchImage = async (signal: AbortSignal) => {
     console.log(
       "process.env.EXPO_PUBLIC_APOD_BASE_URL",
       process.env.EXPO_PUBLIC_APOD_BASE_URL,
     );
-    try {
-      const apodPic = await fetchImageForSelectedDate(date);
 
-      setApodData({
-        title: apodPic?.title,
-        description: apodPic?.explanation,
-        src: apodPic?.hdurl,
-        mediaType: apodPic?.media_type,
-      });
-      if (apodPic?.date) {
-        const newDate = new Date(apodPic?.date);
-        setDate(newDate);
-      }
-    } catch (e) {
-      console.log("Error", e);
-    } finally {
-      setLoading(false);
+    const apodPic = await fetchImageForSelectedDate(date, signal);
+
+    setApodData({
+      title: apodPic?.title,
+      description: apodPic?.explanation,
+      src: apodPic?.hdurl,
+      mediaType: apodPic?.media_type,
+    });
+    if (apodPic?.date && apodPic.date !== selectedDate) {
+      const newDate = new Date(apodPic?.date);
+      setDate(newDate);
     }
+
+    return "";
   };
-  useEffect(() => {
-    fetchImage();
-  }, [date]);
+  // useEffect(() => {
+  //   fetchImage();
+  // }, [date]);
+
+  const { isLoading } = useQuery({
+    queryKey: ["apod", selectedDate],
+    queryFn: ({ signal }) => fetchImage(signal),
+    retry: 3,
+    retryDelay: 100,
+  });
+
   const theme = useTheme();
   const [imageLoading, setImageLoading] = useState(true);
   const imageSource = apodData?.src ? { uri: apodData.src } : undefined;
-  const showImageSkeleton = loading || imageLoading || !imageSource;
+  const showImageSkeleton = isLoading || imageLoading || !imageSource;
   const blurhash =
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
@@ -51,7 +61,7 @@ const useApodHook = () => {
   }, [imageSource?.uri]);
 
   return {
-    loading,
+    isLoading,
     apodData,
     date,
     setDate,

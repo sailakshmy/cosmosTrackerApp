@@ -22,8 +22,9 @@ export default function HomeScreen() {
     blurhash,
     setImageLoading,
     showImageSkeleton,
+    isLoading,
   } = useApodHook();
-
+  console.log("Here", isLoading);
   return (
     <ScrollView>
       <ThemedView style={styles.container}>
@@ -48,34 +49,38 @@ export default function HomeScreen() {
                   <View>
                     <InlineDatePicker date={date} setDate={setDate} />
                   </View>
-                  <ThemedText type="title">{apodData?.title}</ThemedText>
                 </View>
-
-                <View style={styles.imageContainer}>
-                  <Image
-                    style={styles.image}
-                    source={imageSource}
-                    placeholder={{ blurhash }}
-                    contentFit="contain"
-                    onLoad={() => setImageLoading(false)}
-                    onError={(error) => {
-                      setImageLoading(false);
-                      console.log("Image load error", error);
-                    }}
-                  />
-                  {showImageSkeleton && (
-                    <ImageSkeleton style={styles.imageSkeleton} />
-                  )}
-                </View>
-
-                <View style={styles.descriptionStack}>
-                  <ThemedText
-                    style={styles.description}
-                    themeColor="textSecondary"
-                  >
-                    {apodData?.description}
-                  </ThemedText>
-                </View>
+                {isLoading ? (
+                  <ImageSkeleton style={styles.imageContainer} />
+                ) : (
+                  <>
+                    <ThemedText type="title">{apodData?.title}</ThemedText>
+                    <View style={styles.imageContainer}>
+                      <Image
+                        style={styles.image}
+                        source={imageSource}
+                        placeholder={{ blurhash }}
+                        contentFit="contain"
+                        onLoad={() => setImageLoading(false)}
+                        onError={(error) => {
+                          setImageLoading(false);
+                          console.log("Image load error", error);
+                        }}
+                      />
+                      {showImageSkeleton && (
+                        <ImageSkeleton style={styles.imageSkeleton} />
+                      )}
+                    </View>
+                    <View style={styles.descriptionStack}>
+                      <ThemedText
+                        style={styles.description}
+                        themeColor="textSecondary"
+                      >
+                        {apodData?.description}
+                      </ThemedText>
+                    </View>
+                  </>
+                )}
               </View>
             </View>
           </ThemedView>
