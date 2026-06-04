@@ -27,8 +27,8 @@ export function ImageSkeleton({ style }: ImageSkeletonProps) {
     const animation = Animated.loop(
       Animated.timing(shimmer, {
         toValue: 1,
-        duration: Platform.OS === "android" ? 1250 : 1450,
-        easing: Easing.inOut(Easing.cubic),
+        duration: Platform.OS === "android" ? 2200 : 2400,
+        easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
     );
@@ -42,11 +42,15 @@ export function ImageSkeleton({ style }: ImageSkeletonProps) {
     setWidth(event.nativeEvent.layout.width);
   };
 
-  const shimmerWidth = Math.max(width * 0.42, 96);
+  const shimmerWidth = Math.max(width * 0.28, 72);
   const travelDistance = width + shimmerWidth;
   const translateX = shimmer.interpolate({
     inputRange: [0, 1],
     outputRange: [-shimmerWidth, travelDistance],
+  });
+  const shimmerOpacity = shimmer.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.04, isDark ? 0.18 : 0.14, 0.04],
   });
 
   return (
@@ -57,7 +61,7 @@ export function ImageSkeleton({ style }: ImageSkeletonProps) {
       style={[
         styles.container,
         {
-          backgroundColor: theme.backgroundSelected,
+          backgroundColor: isDark ? theme.backgroundElement : theme.background,
           borderColor: theme.border,
           shadowColor: theme.text,
         },
@@ -71,8 +75,18 @@ export function ImageSkeleton({ style }: ImageSkeletonProps) {
           styles.softGlow,
           {
             backgroundColor: isDark
-              ? "rgba(45, 212, 191, 0.10)"
-              : "rgba(99, 102, 241, 0.10)",
+              ? "rgba(45, 212, 191, 0.06)"
+              : "rgba(99, 102, 241, 0.05)",
+          },
+        ]}
+      />
+      <View
+        style={[
+          styles.distantGlow,
+          {
+            backgroundColor: isDark
+              ? "rgba(99, 102, 241, 0.08)"
+              : "rgba(45, 212, 191, 0.07)",
           },
         ]}
       />
@@ -82,21 +96,10 @@ export function ImageSkeleton({ style }: ImageSkeletonProps) {
           {
             width: shimmerWidth,
             backgroundColor: isDark
-              ? "rgba(255, 255, 255, 0.16)"
-              : "rgba(255, 255, 255, 0.74)",
-            transform: [{ translateX }, { rotate: "12deg" }],
-          },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.gloss,
-          {
-            width: shimmerWidth * 0.35,
-            backgroundColor: isDark
-              ? "rgba(255, 255, 255, 0.22)"
-              : "rgba(255, 255, 255, 0.92)",
-            transform: [{ translateX }, { rotate: "12deg" }],
+              ? "rgba(203, 213, 225, 0.34)"
+              : "rgba(255, 255, 255, 0.72)",
+            opacity: shimmerOpacity,
+            transform: [{ translateX }, { rotate: "8deg" }],
           },
         ]}
       />
@@ -112,26 +115,28 @@ const styles = StyleSheet.create({
   },
   softGlow: {
     ...StyleSheet.absoluteFill,
-    opacity: 0.9,
+    opacity: 1,
+  },
+  distantGlow: {
+    position: "absolute",
+    width: "70%",
+    height: "70%",
+    right: "-22%",
+    bottom: "-18%",
+    borderRadius: 999,
+    opacity: 0.7,
   },
   shimmer: {
     position: "absolute",
-    top: "-22%",
-    bottom: "-22%",
-    opacity: 0.9,
-  },
-  gloss: {
-    position: "absolute",
-    top: "-22%",
-    bottom: "-22%",
-    opacity: 0.85,
+    top: "-18%",
+    bottom: "-18%",
   },
   iosDepth: {
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
   },
   androidDepth: {
-    elevation: 3,
+    elevation: 1,
   },
 });
