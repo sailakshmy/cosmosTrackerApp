@@ -4,10 +4,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 
 import { ImageSkeleton } from "@/components/image-skeleton";
+import { SpaceBackground } from "@/components/space-background";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
+import {
+  BottomTabInset,
+  Colors,
+  MaxContentWidth,
+  Spacing,
+} from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
 import ThemeSwitcher from "@/components/theme-switcher";
 import InlineDatePicker from "@/components/date-picker";
@@ -28,76 +34,97 @@ export default function HomeScreen() {
   console.log("Here", isLoading);
   console.log("showImageSkeleton", showImageSkeleton);
   return (
-    <ScrollView>
-      <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <ThemedView
-            type="backgroundElement"
-            style={[
-              styles.heroSection,
-              {
-                borderColor: theme.border,
-                shadowColor: theme.text,
-              },
-            ]}
-          >
-            <View style={styles.contentStack}>
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <SpaceBackground />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.container}>
+          <SafeAreaView style={styles.safeArea}>
+            <ThemedView
+              type="backgroundElement"
+              style={[
+                styles.heroSection,
+                {
+                  borderColor: theme.border,
+                  backgroundColor:
+                    theme.background === Colors.dark.background
+                      ? "rgba(17, 24, 39, 0.9)"
+                      : "rgba(255, 255, 255, 0.92)",
+                  shadowColor: theme.text,
+                },
+              ]}
+            >
               <View style={styles.contentStack}>
-                <View style={styles.headingStack}>
-                  <ThemedText type="subtitle" themeColor="accent">
-                    Cosmos Tracker
-                  </ThemedText>
-                  <ThemeSwitcher />
-                  <View>
-                    <InlineDatePicker date={date} setDate={setDate} />
-                  </View>
-                </View>
-                {isLoading ? (
-                  <ImageSkeleton style={styles.imageContainer} />
-                ) : (
-                  <>
-                    <ThemedText type="title">{apodData?.title}</ThemedText>
-                    {apodData?.mediaType === "image" && (
-                      <View style={styles.imageContainer}>
-                        <Image
-                          style={styles.image}
-                          source={imageSource}
-                          placeholder={{ blurhash }}
-                          contentFit="contain"
-                          onLoad={() => setImageLoading(false)}
-                          onError={(error) => {
-                            setImageLoading(false);
-                            console.log("Image load error", error);
-                          }}
-                        />
-                        {showImageSkeleton && (
-                          <ImageSkeleton style={styles.imageSkeleton} />
-                        )}
-                      </View>
-                    )}
-                    {apodData?.mediaType === "video" && (
-                      <VideoScreen videoSource={apodData?.src} />
-                    )}
-                    <View style={styles.descriptionStack}>
-                      <ThemedText
-                        style={styles.description}
-                        themeColor="textSecondary"
-                      >
-                        {apodData?.description}
-                      </ThemedText>
+                <View style={styles.contentStack}>
+                  <View style={styles.headingStack}>
+                    <ThemedText type="subtitle" themeColor="accent">
+                      Cosmos Tracker
+                    </ThemedText>
+                    <ThemeSwitcher />
+                    <View>
+                      <InlineDatePicker date={date} setDate={setDate} />
                     </View>
-                  </>
-                )}
+                  </View>
+                  {isLoading ? (
+                    <ImageSkeleton style={styles.imageContainer} />
+                  ) : (
+                    <>
+                      <ThemedText type="title">{apodData?.title}</ThemedText>
+                      {apodData?.mediaType === "image" && (
+                        <View style={styles.imageContainer}>
+                          <Image
+                            style={styles.image}
+                            source={imageSource}
+                            placeholder={{ blurhash }}
+                            contentFit="contain"
+                            onLoad={() => setImageLoading(false)}
+                            onError={(error) => {
+                              setImageLoading(false);
+                              console.log("Image load error", error);
+                            }}
+                          />
+                          {showImageSkeleton && (
+                            <ImageSkeleton style={styles.imageSkeleton} />
+                          )}
+                        </View>
+                      )}
+                      {apodData?.mediaType === "video" && (
+                        <VideoScreen videoSource={apodData?.src} />
+                      )}
+                      <View style={styles.descriptionStack}>
+                        <ThemedText
+                          style={styles.description}
+                          themeColor="textSecondary"
+                        >
+                          {apodData?.description}
+                        </ThemedText>
+                      </View>
+                    </>
+                  )}
+                </View>
               </View>
-            </View>
-          </ThemedView>
-        </SafeAreaView>
-      </ThemedView>
-    </ScrollView>
+            </ThemedView>
+          </SafeAreaView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    position: "relative",
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
