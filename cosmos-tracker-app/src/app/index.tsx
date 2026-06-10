@@ -62,7 +62,7 @@ export default function HomeScreen() {
                     <ThemedText type="subtitle" themeColor="accent">
                       Astronomy Picture of the Day
                     </ThemedText>
-                    <ThemeSwitcher />
+
                     <View>
                       <InlineDatePicker date={date} setDate={setDate} />
                     </View>

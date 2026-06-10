@@ -1,6 +1,6 @@
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { SymbolView } from "expo-symbols";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect, useState } from "react";
 import {
   useColorScheme,
@@ -9,7 +9,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { ThemedText } from "./themed-text";
 
 const ThemeSwitcher = () => {
   const currentTheme = useColorScheme();
@@ -28,6 +27,7 @@ const ThemeSwitcher = () => {
       onPress={onChangeTheme}
       accessibilityRole="button"
       accessibilityLabel={`Switch to ${isDark ? "light" : "dark"} mode`}
+      accessibilityState={{ checked: isDark }}
       style={styles.themeStyle}
     >
       {({ pressed }) => (
@@ -41,14 +41,11 @@ const ThemeSwitcher = () => {
             },
           ]}
         >
-          <SymbolView
-            tintColor={theme.accent}
-            name={isDark ? "sun.max.fill" : "moon.stars.fill"}
-            size={14}
+          <Ionicons
+            color={theme.accent}
+            name={isDark ? "sunny" : "moon"}
+            size={18}
           />
-          <ThemedText type="smallBold" themeColor="textSecondary">
-            {isDark ? "Light" : "Dark"}
-          </ThemedText>
         </View>
       )}
     </Pressable>
@@ -63,14 +60,14 @@ const styles = StyleSheet.create({
   themeButton: {
     borderWidth: 1,
     borderRadius: Spacing.five,
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.three,
+    width: 40,
+    height: 40,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.two,
-    minWidth: 92,
     overflow: "hidden",
+    marginBottom: 12,
+    marginHorizontal: 14,
   },
 });
 
