@@ -60,7 +60,7 @@ export default function HomeScreen() {
                 <View style={styles.contentStack}>
                   <View style={styles.headingStack}>
                     <ThemedText type="subtitle" themeColor="accent">
-                      Cosmos Tracker
+                      Astronomy Picture of the Day
                     </ThemedText>
                     <ThemeSwitcher />
                     <View>
