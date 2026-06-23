@@ -1,7 +1,8 @@
 import { Platform, Pressable, StyleSheet, View } from "react-native";
-import DateTimePicker, {
-  type DateTimePickerChangeEvent,
-} from "@react-native-community/datetimepicker";
+// import DateTimePicker, {
+//   type DateTimePickerChangeEvent,
+// } from "@react-native-community/datetimepicker";
+import DateTimePicker, { DateType } from "react-native-ui-datepicker";
 import { ThemedText } from "./themed-text";
 import { useState } from "react";
 import { fetchISOStringDate } from "@/utilities/helper";
@@ -11,16 +12,21 @@ import { useTheme } from "@/hooks/use-theme";
 interface InlineDatePickerProps {
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
+  mode: "single" | "range" | "multiple";
 }
 
-const InlineDatePicker = ({ date, setDate }: InlineDatePickerProps) => {
+const InlineDatePicker = ({
+  date: userSelectedDate,
+  setDate,
+  mode,
+}: InlineDatePickerProps) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const theme = useTheme();
-  console.log("props", date);
-  const onChangeDate = (_e: DateTimePickerChangeEvent, selectedDate: any) => {
-    setShowDatePicker(false);
+  // console.log("props", userSelectedDate);
+  const onChangeDate = (selectedDate: DateType) => {
     console.log("Selected", selectedDate);
-    setDate(selectedDate);
+    setShowDatePicker(false);
+    setDate(new Date(selectedDate));
   };
   const onPressCalendarIcon = () => {
     console.log("Clicked the calendar icon");
@@ -38,16 +44,16 @@ const InlineDatePicker = ({ date, setDate }: InlineDatePickerProps) => {
           },
         ]}
       >
-        <ThemedText>{fetchISOStringDate(date)}</ThemedText>
+        <ThemedText>{fetchISOStringDate(userSelectedDate)}</ThemedText>
         <FontAwesome name="calendar-o" size={18} color={theme.text} />
       </Pressable>
       {showDatePicker && (
         <DateTimePicker
-          value={date}
-          onValueChange={onChangeDate}
-          maximumDate={new Date()}
-          display={Platform.OS === "android" ? "calendar" : "inline"}
-          mode="date"
+          date={userSelectedDate}
+          onChange={({ date }) => onChangeDate(date)}
+          maxDate={new Date()}
+          // display={Platform.OS === "android" ? "calendar" : "inline"}
+          mode={mode}
         />
       )}
     </View>
