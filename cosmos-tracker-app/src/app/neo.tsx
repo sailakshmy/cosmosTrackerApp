@@ -14,14 +14,17 @@ import {
 } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { SpaceBackground } from "@/components/space-background";
+import InlineDatePicker from "@/components/date-picker";
+import { useState } from "react";
 
-export default function TabTwoScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
+export default function NeoScreen() {
+  // const safeAreaInsets = useSafeAreaInsets();
+  // const insets = {
+  //   ...safeAreaInsets,
+  //   bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+  // };
   const theme = useTheme();
+  const [date, setDate] = useState(new Date());
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -52,6 +55,9 @@ export default function TabTwoScreen() {
                     <ThemedText type="subtitle" themeColor="accent">
                       Objects Near Our Big Blue
                     </ThemedText>
+                    <View>
+                      <InlineDatePicker date={date} setDate={setDate} />
+                    </View>
                   </View>
                 </View>
               </View>

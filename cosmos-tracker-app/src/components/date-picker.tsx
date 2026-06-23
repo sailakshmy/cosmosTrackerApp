@@ -12,13 +12,11 @@ import { useTheme } from "@/hooks/use-theme";
 interface InlineDatePickerProps {
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
-  mode: "single" | "range" | "multiple";
 }
 
 const InlineDatePicker = ({
   date: userSelectedDate,
   setDate,
-  mode,
 }: InlineDatePickerProps) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const theme = useTheme();
@@ -53,7 +51,7 @@ const InlineDatePicker = ({
           onChange={({ date }) => onChangeDate(date)}
           maxDate={new Date()}
           // display={Platform.OS === "android" ? "calendar" : "inline"}
-          mode={mode}
+          mode="single"
         />
       )}
     </View>

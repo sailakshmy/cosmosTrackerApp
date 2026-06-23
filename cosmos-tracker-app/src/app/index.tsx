@@ -64,11 +64,7 @@ export default function HomeScreen() {
                     </ThemedText>
 
                     <View>
-                      <InlineDatePicker
-                        date={date}
-                        setDate={setDate}
-                        mode="single"
-                      />
+                      <InlineDatePicker date={date} setDate={setDate} />
                     </View>
                   </View>
                   {isLoading ? (
