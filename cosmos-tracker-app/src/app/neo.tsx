@@ -1,15 +1,19 @@
-import { Image } from "expo-image";
-import { SymbolView } from "expo-symbols";
-import { Platform, Pressable, ScrollView, StyleSheet } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-import { ExternalLink } from "@/components/external-link";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Collapsible } from "@/components/ui/collapsible";
-import { WebBadge } from "@/components/web-badge";
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
+import {
+  BottomTabInset,
+  Colors,
+  MaxContentWidth,
+  Spacing,
+} from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { SpaceBackground } from "@/components/space-background";
 
 export default function TabTwoScreen() {
   const safeAreaInsets = useSafeAreaInsets();
@@ -19,84 +23,87 @@ export default function TabTwoScreen() {
   };
   const theme = useTheme();
 
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
-
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}
-    >
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <SpaceBackground />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <ThemedView style={styles.container}>
+          <SafeAreaView style={styles.safeArea}>
+            <ThemedView
+              type="backgroundElement"
+              style={[
+                styles.heroSection,
+                {
+                  borderColor: theme.border,
+                  backgroundColor:
+                    theme.background === Colors.dark.background
+                      ? "rgba(17, 24, 39, 0.9)"
+                      : "rgba(255, 255, 255, 0.92)",
+                  shadowColor: theme.text,
+                },
+              ]}
+            >
+              <View style={styles.contentStack}>
+                <View style={styles.contentStack}>
+                  <View style={styles.headingStack}>
+                    <ThemedText type="subtitle" themeColor="accent">
+                      Objects Near Our Big Blue
+                    </ThemedText>
+                  </View>
+                </View>
+              </View>
+            </ThemedView>
+          </SafeAreaView>
         </ThemedView>
-      </ThemedView>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    position: "relative",
+  },
   scrollView: {
     flex: 1,
+    backgroundColor: "transparent",
   },
-  contentContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  container: {
-    maxWidth: MaxContentWidth,
+  scrollContent: {
     flexGrow: 1,
   },
-  titleContainer: {
-    gap: Spacing.three,
-    alignItems: "center",
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
-  },
-  centerText: {
-    textAlign: "center",
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
+  container: {
     flexDirection: "row",
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
     justifyContent: "center",
-    gap: Spacing.one,
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Spacing.three,
     alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: BottomTabInset + Spacing.three,
+    maxWidth: MaxContentWidth,
   },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: "center",
-  },
-  imageTutorial: {
-    width: "100%",
-    aspectRatio: 296 / 171,
+  heroSection: {
+    alignSelf: "stretch",
+    borderWidth: 1,
     borderRadius: Spacing.three,
-    marginTop: Spacing.two,
+    padding: Spacing.four,
+    paddingHorizontal: Spacing.four,
+    gap: Spacing.five,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    elevation: 4,
   },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
+  contentStack: {
+    gap: Spacing.four,
+  },
+  headingStack: {
+    gap: Spacing.three,
   },
 });

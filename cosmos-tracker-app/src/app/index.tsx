@@ -15,7 +15,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
-import ThemeSwitcher from "@/components/theme-switcher";
+// import ThemeSwitcher from "@/components/theme-switcher";
 import InlineDatePicker from "@/components/date-picker";
 import VideoScreen from "@/components/video-player";
 
