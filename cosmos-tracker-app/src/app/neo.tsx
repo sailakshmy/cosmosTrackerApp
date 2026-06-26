@@ -3,7 +3,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-
+import { addDays } from "date-fns";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -15,7 +15,8 @@ import {
 import { useTheme } from "@/hooks/use-theme";
 import { SpaceBackground } from "@/components/space-background";
 import InlineDatePicker from "@/components/date-picker";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import InlineDateRangePicker from "@/components/date-range-picker";
 
 export default function NeoScreen() {
   // const safeAreaInsets = useSafeAreaInsets();
@@ -24,7 +25,18 @@ export default function NeoScreen() {
   //   bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
   // };
   const theme = useTheme();
-  const [date, setDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(() => addDays(new Date(), 7));
+
+  const rangeEndDate = useMemo(() => addDays(new Date(), 7), []);
+
+  const onDateRangeChange = (selectedDate: Date, selectedEndDate: Date) => {
+    setStartDate(selectedDate);
+    setEndDate(selectedEndDate);
+    // setEndDateGreaterThanExpectedRange(
+    //   selectedEndDate > addDays(selectedDate, 7),
+    // );
+  };
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -56,7 +68,11 @@ export default function NeoScreen() {
                       Objects Near Our Big Blue
                     </ThemedText>
                     <View>
-                      <InlineDatePicker date={date} setDate={setDate} />
+                      <InlineDateRangePicker
+                        selectedStartDate={startDate}
+                        selectedEndDate={endDate}
+                        onChangeDate={onDateRangeChange}
+                      />
                     </View>
                   </View>
                 </View>
