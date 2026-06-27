@@ -1,5 +1,7 @@
+import { format } from "date-fns";
+
 export const fetchISOStringDate = (date: Date) =>
-  date?.toISOString()?.split("T")?.[0];
+  format(date, "yyyy-MM-dd");
 
 const readResponseBody = async (response: Response) => {
   const contentType = response.headers.get("content-type");

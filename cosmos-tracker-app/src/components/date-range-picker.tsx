@@ -289,9 +289,13 @@ const InlineDateRangePicker = ({
               <ThemedText type="small" themeColor="textSecondary">
                 From
               </ThemedText>
-              <ThemedText type="smallBold">{localDisplayedStartDate}</ThemedText>
+              <ThemedText type="smallBold">
+                {localDisplayedStartDate}
+              </ThemedText>
             </View>
-            <View style={[styles.rangeDivider, { borderColor: theme.border }]} />
+            <View
+              style={[styles.rangeDivider, { borderColor: theme.border }]}
+            />
             <View style={styles.rangeSummaryItem}>
               <ThemedText type="small" themeColor="textSecondary">
                 To
