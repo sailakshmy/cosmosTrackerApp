@@ -1,6 +1,5 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { addDays } from "date-fns";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -12,9 +11,20 @@ import {
 import { SpaceBackground } from "@/components/space-background";
 import InlineDateRangePicker from "@/components/date-range-picker";
 import useNeoFeed from "@/hooks/useNeoFeed";
+import Card from "@/components/card";
+import CardSkeleton from "@/components/card-skeleton";
+import { convertEpochDateToMonthDateYearFormat } from "@/utilities/helper";
 
 export default function NeoScreen() {
-  const { theme, startDate, endDate, onDateRangeChange } = useNeoFeed();
+  const {
+    theme,
+    startDate,
+    endDate,
+    onDateRangeChange,
+    neoFeedData,
+    isFetching,
+    isLoading,
+  } = useNeoFeed();
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
@@ -51,6 +61,44 @@ export default function NeoScreen() {
                         onChangeDate={onDateRangeChange}
                       />
                     </View>
+
+                    {isFetching || isLoading ? (
+                      [1, 2, 3, 4].map((item) => <CardSkeleton key={item} />)
+                    ) : (
+                      <>
+                        <Card
+                          title={`${neoFeedData?.totalNeo}`}
+                          subtitle="A total of"
+                          description="Objects came close to Earth during this period"
+                        />
+                        {neoFeedData?.hazardousNeo > 0 ? (
+                          <Card
+                            title={`${neoFeedData?.hazardousNeo}`}
+                            subtitle={`Out of ${neoFeedData?.totalNeo}`}
+                            description={`${neoFeedData?.hazardousNeo > 1 ? "were" : "was"} potentially hazardous to us`}
+                          />
+                        ) : (
+                          <Card
+                            title={`Thankfully, none of them were hazardous`}
+                            subtitle={`Phew!`}
+                          />
+                        )}
+                        {neoFeedData?.objClosestToEarth && (
+                          <Card
+                            title={`${neoFeedData?.objClosestToEarth?.name}  on ${convertEpochDateToMonthDateYearFormat(neoFeedData?.objClosestToEarth?.epoch_date_close_approach)}`}
+                            subtitle="The object that was closest to us during this period was the"
+                            description={`at a distance of ${neoFeedData?.objClosestToEarth?.miss_distance?.kilometers} km (${neoFeedData?.objClosestToEarth?.miss_distance?.miles} miles)`}
+                          />
+                        )}
+                        {neoFeedData?.highestVelocityObj && (
+                          <Card
+                            title={`${neoFeedData?.highestVelocityObj?.name}`}
+                            subtitle="The object with the highest velocity during this period"
+                            description={`at a velocity of ${neoFeedData?.highestVelocityObj?.relative_velocity?.kilometers_per_hour} kmph (${neoFeedData?.highestVelocityObj?.relative_velocity?.miles_per_hour} mph)`}
+                          />
+                        )}
+                      </>
+                    )}
                   </View>
                 </View>
               </View>

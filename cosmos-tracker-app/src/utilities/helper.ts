@@ -59,3 +59,25 @@ export const formatDateType = (date: DateType, fallback: string) => {
 
   return nativeDate ? fetchISOStringDate(nativeDate) : fallback;
 };
+
+export const fetchNeoFeedData = async (
+  startDate: string,
+  endDate: string,
+  signal?: AbortSignal,
+) => {
+  const neoFeedData = await fetch(
+    `${process.env.EXPO_PUBLIC_APOD_BASE_URL}/neo?startDate=${startDate}&endDate=${endDate}`,
+    { signal },
+  );
+  const neoFeed = await neoFeedData?.json();
+  console.log("neoFeed", neoFeed);
+  return neoFeed;
+};
+
+export const convertEpochDateToMonthDateYearFormat = (
+  epochDate: EpochTimeStamp,
+) => {
+  return new Date(epochDate)?.toUTCString();
+  // console.log(`"date", ${date?.toDateString()}, ${date?.toUTCString()}`);
+  // return date;
+};
