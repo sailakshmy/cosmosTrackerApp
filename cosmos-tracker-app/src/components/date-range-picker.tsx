@@ -10,6 +10,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useTheme } from "@/hooks/use-theme";
 import { Spacing } from "@/constants/theme";
 import { addDays } from "date-fns";
+import Tooltip from "./tooltip";
 
 interface InlineDateRangePickerProps {
   selectedStartDate: Date;
@@ -196,11 +197,20 @@ const InlineDateRangePicker = ({
       setLocalStartDate(updatedStartDate);
       const startDate = toDate(updatedStartDate);
       setLocalEndDate(updatedEndDate);
-      let endDate = toDate(updatedEndDate);
-      if (updatedEndDate > addDays(updatedStartDate, 7)) {
+      const selectedEndDate = toDate(updatedEndDate);
+      let endDate = selectedEndDate;
+
+      if (
+        startDate &&
+        selectedEndDate &&
+        selectedEndDate > addDays(startDate, 7)
+      ) {
         setRangeLongerThan7Days(true);
-        endDate = toDate(addDays(updatedStartDate, 7));
+        endDate = addDays(startDate, 7);
+      } else {
+        setRangeLongerThan7Days(false);
       }
+
       setShowDatePicker(false);
       if (startDate && endDate) {
         onChangeDate(startDate, endDate);
@@ -222,32 +232,37 @@ const InlineDateRangePicker = ({
 
   return (
     <View>
-      <Pressable
-        onPress={onPressCalendarIcon}
-        style={[
-          styles.dateButton,
-          {
-            backgroundColor: theme.backgroundElement,
-            borderColor: theme.border,
-          },
-        ]}
-      >
-        <ThemedText type="smallBold" style={styles.date}>
-          {displayedStartDate}
-          <ThemedText type="small" themeColor="textSecondary">
-            {"  to  "}
-          </ThemedText>
-          {displayedEndDate}
-        </ThemedText>
-        <View
+      <View style={styles.dateButtonRow}>
+        <Pressable
+          onPress={onPressCalendarIcon}
           style={[
-            styles.iconContainer,
-            { backgroundColor: theme.backgroundSelected },
+            styles.dateButton,
+            {
+              backgroundColor: theme.backgroundElement,
+              borderColor: theme.border,
+            },
           ]}
         >
-          <FontAwesome name="calendar-o" size={16} color={theme.accent} />
-        </View>
-      </Pressable>
+          <ThemedText type="smallBold" style={styles.date}>
+            {displayedStartDate}
+            <ThemedText type="small" themeColor="textSecondary">
+              {"  to  "}
+            </ThemedText>
+            {displayedEndDate}
+          </ThemedText>
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: theme.backgroundSelected },
+            ]}
+          >
+            <FontAwesome name="calendar-o" size={16} color={theme.accent} />
+          </View>
+        </Pressable>
+        {rangeLongerThan7Days ? (
+          <Tooltip message="Please select a date range that is within 7 days" />
+        ) : null}
+      </View>
       {showDatePicker && (
         <View
           style={[
@@ -303,7 +318,13 @@ const InlineDateRangePicker = ({
 };
 
 const styles = StyleSheet.create({
+  dateButtonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.two,
+  },
   dateButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.two,
