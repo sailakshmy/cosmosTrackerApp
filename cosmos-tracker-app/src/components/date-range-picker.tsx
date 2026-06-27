@@ -5,32 +5,11 @@ import DateTimePicker, {
 } from "react-native-ui-datepicker";
 import { ThemedText } from "./themed-text";
 import { useMemo, useState } from "react";
-import { fetchISOStringDate } from "@/utilities/helper";
+import { fetchISOStringDate, formatDateType, toDate } from "@/utilities/helper";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useTheme } from "@/hooks/use-theme";
 import { Spacing } from "@/constants/theme";
-
-const toDate = (date: DateType) => {
-  if (!date) {
-    return undefined;
-  }
-
-  if (date instanceof Date) {
-    return date;
-  }
-
-  if (typeof date === "string" || typeof date === "number") {
-    return new Date(date);
-  }
-
-  return date.toDate();
-};
-
-const formatDateType = (date: DateType, fallback: string) => {
-  const nativeDate = toDate(date);
-
-  return nativeDate ? fetchISOStringDate(nativeDate) : fallback;
-};
+import { addDays } from "date-fns";
 
 interface InlineDateRangePickerProps {
   selectedStartDate: Date;
@@ -49,7 +28,7 @@ const InlineDateRangePicker = ({
     useState<DateType>(selectedStartDate);
   const [localEndDate, setLocalEndDate] = useState<DateType>(selectedEndDate);
   const theme = useTheme();
-
+  const [rangeLongerThan7Days, setRangeLongerThan7Days] = useState(false);
   const datePickerStyles = useMemo(
     () => ({
       ...defaultStyles,
@@ -215,11 +194,14 @@ const InlineDateRangePicker = ({
       setLocalEndDate(undefined);
     } else if (updatedStartDate && updatedEndDate) {
       setLocalStartDate(updatedStartDate);
-      setLocalEndDate(updatedEndDate);
-      setShowDatePicker(false);
       const startDate = toDate(updatedStartDate);
-      const endDate = toDate(updatedEndDate);
-
+      setLocalEndDate(updatedEndDate);
+      let endDate = toDate(updatedEndDate);
+      if (updatedEndDate > addDays(updatedStartDate, 7)) {
+        setRangeLongerThan7Days(true);
+        endDate = toDate(addDays(updatedStartDate, 7));
+      }
+      setShowDatePicker(false);
       if (startDate && endDate) {
         onChangeDate(startDate, endDate);
       }

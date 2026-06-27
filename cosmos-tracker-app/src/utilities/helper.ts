@@ -1,7 +1,7 @@
 import { format } from "date-fns";
+import { DateType } from "react-native-ui-datepicker";
 
-export const fetchISOStringDate = (date: Date) =>
-  format(date, "yyyy-MM-dd");
+export const fetchISOStringDate = (date: Date) => format(date, "yyyy-MM-dd");
 
 const readResponseBody = async (response: Response) => {
   const contentType = response.headers.get("content-type");
@@ -36,4 +36,26 @@ export const fetchImageForSelectedDate = async (
 
   console.log("apod", apod);
   return apod?.data;
+};
+
+export const toDate = (date: DateType) => {
+  if (!date) {
+    return undefined;
+  }
+
+  if (date instanceof Date) {
+    return date;
+  }
+
+  if (typeof date === "string" || typeof date === "number") {
+    return new Date(date);
+  }
+
+  return date.toDate();
+};
+
+export const formatDateType = (date: DateType, fallback: string) => {
+  const nativeDate = toDate(date);
+
+  return nativeDate ? fetchISOStringDate(nativeDate) : fallback;
 };
