@@ -1,8 +1,5 @@
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { addDays } from "date-fns";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -12,32 +9,12 @@ import {
   MaxContentWidth,
   Spacing,
 } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
 import { SpaceBackground } from "@/components/space-background";
-import InlineDatePicker from "@/components/date-picker";
-import { useMemo, useState } from "react";
 import InlineDateRangePicker from "@/components/date-range-picker";
+import useNeoFeed from "@/hooks/useNeoFeed";
 
 export default function NeoScreen() {
-  // const safeAreaInsets = useSafeAreaInsets();
-  // const insets = {
-  //   ...safeAreaInsets,
-  //   bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  // };
-  const theme = useTheme();
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(() => addDays(new Date(), 7));
-
-  const rangeEndDate = useMemo(() => addDays(new Date(), 7), []);
-
-  const onDateRangeChange = (selectedDate: Date, selectedEndDate: Date) => {
-    setStartDate(selectedDate);
-    setEndDate(selectedEndDate);
-    // setEndDateGreaterThanExpectedRange(
-    //   selectedEndDate > addDays(selectedDate, 7),
-    // );
-  };
-
+  const { theme, startDate, endDate, onDateRangeChange } = useNeoFeed();
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
