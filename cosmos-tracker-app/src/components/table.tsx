@@ -1,6 +1,8 @@
+import { fetchRowsFromTableData } from "@/utilities/helper";
+import { useMemo } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Table, Row } from "react-native-reanimated-table";
-const TableComponent = () => {
+const TableComponent = ({ tableData }) => {
   const tableHead = [
     "Date",
     "Id",
@@ -8,15 +10,17 @@ const TableComponent = () => {
     "Miss Distance (km)",
     "Relative Velocity (kmph)",
   ];
-  const widthArr = [100, 100, 200, 100, 100];
-  const tableData = [];
-  for (let i = 0; i < 30; i += 1) {
-    const rowData = [];
-    for (let j = 0; j < 9; j += 1) {
-      rowData.push(`${i}${j}`);
-    }
-    tableData.push(rowData);
+  const widthArr = [100, 80, 180, 160, 160];
+  const tableRows = useMemo(
+    () => fetchRowsFromTableData(tableData),
+    [tableData],
+  );
+  const tableDataWithRows = [];
+  for (let i = 0; i < tableRows.length; i += 1) {
+    const rowData = tableRows[i];
+    tableDataWithRows.push(rowData);
   }
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal={true}>
@@ -31,7 +35,7 @@ const TableComponent = () => {
           </Table>
           <ScrollView style={styles.dataWrapper}>
             <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
-              {tableData.map((rowData, index) => (
+              {tableDataWithRows.map((rowData, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => console.log("Selected row", rowData)}

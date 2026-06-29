@@ -25,6 +25,7 @@ export default function NeoScreen() {
     neoFeedData,
     isFetching,
     isLoading,
+    sortedObjectList,
   } = useNeoFeed();
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -99,7 +100,7 @@ export default function NeoScreen() {
                           />
                         )}
 
-                        <TableComponent />
+                        <TableComponent tableData={sortedObjectList} />
                       </>
                     )}
                   </View>

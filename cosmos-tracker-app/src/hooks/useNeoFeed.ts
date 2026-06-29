@@ -20,6 +20,7 @@ const useNeoFeed = () => {
     objClosestToEarth: null,
     highestVelocityObj: null,
   });
+  const [sortedObjectList, setSortedObjectList] = useState([]);
 
   const fetchDataForSelectedDateRange = async (signal: AbortSignal) => {
     const selStartDate = fetchISOStringDate(addDays(startDate, 1));
@@ -37,6 +38,7 @@ const useNeoFeed = () => {
       objClosestToEarth: updatedNeoFeedDate?.objectClosestToEarth,
       highestVelocityObj: updatedNeoFeedDate?.highestVelocityObject,
     });
+    setSortedObjectList(updatedNeoFeedDate?.nearEarthObjectList);
     return updatedNeoFeedDate;
   };
 
@@ -56,6 +58,7 @@ const useNeoFeed = () => {
     isFetching,
     isLoading,
     neoFeedData,
+    sortedObjectList,
   };
 };
 

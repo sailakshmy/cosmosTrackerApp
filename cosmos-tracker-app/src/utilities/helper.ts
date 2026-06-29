@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { DateType } from "react-native-ui-datepicker";
+import { Data, NeoTableData, NeoTableObject } from "./types";
 
 export const fetchISOStringDate = (date: Date) => format(date, "yyyy-MM-dd");
 
@@ -78,6 +79,27 @@ export const convertEpochDateToMonthDateYearFormat = (
   epochDate: EpochTimeStamp,
 ) => {
   return new Date(epochDate)?.toUTCString();
-  // console.log(`"date", ${date?.toDateString()}, ${date?.toUTCString()}`);
-  // return date;
+};
+
+export function createData(object: NeoTableObject): Data {
+  return [
+    object?.close_approach_data?.[0]?.close_approach_date,
+    object?.id,
+    object?.name,
+    object?.close_approach_data?.[0]?.miss_distance?.kilometers,
+    object?.close_approach_data?.[0]?.relative_velocity?.kilometers_per_hour,
+  ];
+}
+
+export const fetchRowsFromTableData = (tableData: NeoTableData): Data[] => {
+  const rows: Data[] = [];
+  tableData.forEach((date) => {
+    Object?.keys(date)?.forEach((datekey) => {
+      const dateObj = date?.[datekey];
+      if (dateObj?.length) {
+        dateObj?.forEach((neo) => rows?.push(createData(neo)));
+      }
+    });
+  });
+  return rows;
 };

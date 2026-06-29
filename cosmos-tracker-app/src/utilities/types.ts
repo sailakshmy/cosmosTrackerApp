@@ -22,3 +22,27 @@ export interface NearEarthObject {
   miss_distance: MissDistance;
   orbiting_body: string;
 }
+
+export interface Data {
+  date: string;
+  name: string;
+  missDistance: string;
+  relativeVelocity: string;
+  id: string;
+}
+
+export interface NeoTableObject {
+  close_approach_data?: Array<{
+    close_approach_date?: string;
+    miss_distance?: {
+      kilometers?: string;
+    };
+    relative_velocity?: {
+      kilometers_per_hour?: string;
+    };
+  }>;
+  id?: string;
+  name?: string;
+}
+
+export type NeoTableData = Array<Record<string, NeoTableObject[]>>;
