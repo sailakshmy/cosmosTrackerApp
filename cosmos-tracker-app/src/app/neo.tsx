@@ -100,7 +100,10 @@ export default function NeoScreen() {
                           />
                         )}
 
-                        <TableComponent tableData={sortedObjectList} />
+                        <TableComponent
+                          tableData={sortedObjectList}
+                          title="Close Approach Details"
+                        />
                       </>
                     )}
                   </View>

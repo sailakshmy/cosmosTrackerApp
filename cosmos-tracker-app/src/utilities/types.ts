@@ -23,13 +23,7 @@ export interface NearEarthObject {
   orbiting_body: string;
 }
 
-export interface Data {
-  date: string;
-  name: string;
-  missDistance: string;
-  relativeVelocity: string;
-  id: string;
-}
+export type Data = Array<string | undefined>;
 
 export interface NeoTableObject {
   close_approach_data?: Array<{
