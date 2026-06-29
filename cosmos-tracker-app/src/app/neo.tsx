@@ -14,6 +14,7 @@ import useNeoFeed from "@/hooks/useNeoFeed";
 import Card from "@/components/card";
 import CardSkeleton from "@/components/card-skeleton";
 import { convertEpochDateToMonthDateYearFormat } from "@/utilities/helper";
+import TableComponent from "@/components/table";
 
 export default function NeoScreen() {
   const {
@@ -97,6 +98,8 @@ export default function NeoScreen() {
                             description={`at a velocity of ${neoFeedData?.highestVelocityObj?.relative_velocity?.kilometers_per_hour} kmph (${neoFeedData?.highestVelocityObj?.relative_velocity?.miles_per_hour} mph)`}
                           />
                         )}
+
+                        <TableComponent />
                       </>
                     )}
                   </View>
