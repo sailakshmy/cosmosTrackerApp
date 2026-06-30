@@ -1,6 +1,6 @@
 import { fetchRowsFromTableData } from "@/utilities/helper";
 import type { NeoTableData } from "@/utilities/types";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Table, Row } from "react-native-reanimated-table";
 import { Spacing } from "@/constants/theme";
@@ -36,7 +36,8 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
     }),
     [theme.border],
   );
-
+  const [selected, setSelected] = useState(tableRows?.[0]?.[1]);
+  console.log("selected", selected);
   return (
     <View
       style={[
@@ -79,7 +80,10 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
                   <TouchableOpacity
                     activeOpacity={0.75}
                     key={`${rowData[1] ?? "neo"}-${index}`}
-                    onPress={() => console.log("Selected row", rowData)}
+                    onPress={() => {
+                      console.log("Selected row", rowData?.[1]);
+                      setSelected(rowData?.[1]);
+                    }}
                   >
                     <Row
                       data={rowData}
@@ -88,9 +92,9 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
                         styles.row,
                         {
                           backgroundColor:
-                            index % 2 === 0
-                              ? theme.backgroundElement
-                              : theme.background,
+                            selected === rowData?.[1]
+                              ? theme.background
+                              : theme.backgroundElement,
                         },
                       ]}
                       textStyle={[styles.text, { color: theme.textSecondary }]}
