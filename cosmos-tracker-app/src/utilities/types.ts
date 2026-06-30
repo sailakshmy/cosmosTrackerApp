@@ -37,6 +37,7 @@ export interface NeoTableObject {
   }>;
   id?: string;
   name?: string;
+  is_potentially_hazardous_asteroid?: boolean;
 }
 
 export type NeoTableData = Array<Record<string, NeoTableObject[]>>;

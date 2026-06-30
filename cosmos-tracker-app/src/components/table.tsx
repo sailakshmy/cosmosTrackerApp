@@ -17,11 +17,12 @@ const tableHead = [
   "Date",
   "Id",
   "Name",
+  "Hazardous",
   "Miss Distance (km)",
   "Relative Velocity (kmph)",
 ];
 
-const widthArr = [112, 96, 196, 176, 184];
+const widthArr = [112, 96, 196, 100, 176, 184];
 
 const TableComponent = ({ tableData, title }: TableComponentProps) => {
   const theme = useTheme();
