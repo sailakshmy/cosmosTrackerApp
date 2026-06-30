@@ -1,13 +1,13 @@
 import { fetchRowsFromTableData } from "@/utilities/helper";
 import type { NeoTableData } from "@/utilities/types";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Button,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Table, Row } from "react-native-reanimated-table";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -29,6 +29,7 @@ const tableHead = [
 ];
 
 const widthArr = [112, 96, 196, 100, 176, 184];
+const rowsPerPageOptions = [5, 10, 25];
 
 const TableComponent = ({ tableData, title }: TableComponentProps) => {
   const theme = useTheme();
@@ -43,10 +44,19 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
   const paginatedRows = tableRows?.slice(startIndex, startIndex + itemsPerPage);
   console.log("paginatedRows", paginatedRows?.length);
   console.log("tableR", tableRows?.length);
-  const totalPages = Math.ceil(tableRows?.length / itemsPerPage);
+  const totalRows = tableRows.length;
+  const totalPages = Math.ceil(totalRows / itemsPerPage);
+  const rangeStart = totalRows === 0 ? 0 : startIndex + 1;
+  const rangeEnd = Math.min(startIndex + itemsPerPage, totalRows);
+  const isPrevDisabled = currentPage === 0;
+  const isNextDisabled = totalPages === 0 || currentPage >= totalPages - 1;
 
   const [selected, setSelected] = useState(tableRows?.[0]?.[1]);
   console.log("selected", selected);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [itemsPerPage, totalRows]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
@@ -144,25 +154,103 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
         </View>
       </ScrollView>
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginTop: 15,
-        }}
+        style={[
+          styles.pagination,
+          {
+            backgroundColor: theme.background,
+            borderColor: theme.border,
+          },
+        ]}
       >
-        <Button
-          title="Previous"
-          onPress={handlePrevPage}
-          disabled={currentPage === 0}
-        />
-        <ThemedText>
-          Page {currentPage + 1} of {totalPages}
-        </ThemedText>
-        <Button
-          title="Next"
-          onPress={handleNextPage}
-          disabled={currentPage === totalPages - 1}
-        />
+        <View style={styles.rowsPerPage}>
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            style={styles.paginationLabel}
+          >
+            Rows per page:
+          </ThemedText>
+          <View style={styles.rowsPerPageOptions}>
+            {rowsPerPageOptions.map((option) => {
+              const isSelected = option === itemsPerPage;
+
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.78}
+                  key={option}
+                  onPress={() => setItemsPerPage(option)}
+                  style={[
+                    styles.rowsPerPageOption,
+                    {
+                      backgroundColor: isSelected
+                        ? theme.backgroundSelected
+                        : "transparent",
+                      borderColor: isSelected ? theme.accent : theme.border,
+                    },
+                  ]}
+                >
+                  <ThemedText
+                    type="smallBold"
+                    themeColor={isSelected ? "accent" : "textSecondary"}
+                    style={styles.rowsPerPageOptionText}
+                  >
+                    {option}
+                  </ThemedText>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={styles.paginationActions}>
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            style={styles.displayedRows}
+          >
+            {rangeStart}-{rangeEnd} of {totalRows}
+          </ThemedText>
+          <View style={styles.paginationButtons}>
+            <TouchableOpacity
+              accessibilityLabel="Previous page"
+              activeOpacity={0.78}
+              onPress={handlePrevPage}
+              disabled={isPrevDisabled}
+              style={[
+                styles.paginationButton,
+                {
+                  borderColor: theme.border,
+                },
+                isPrevDisabled && styles.paginationButtonDisabled,
+              ]}
+            >
+              <MaterialIcons
+                name="chevron-left"
+                size={24}
+                color={isPrevDisabled ? theme.textSecondary : theme.accent}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityLabel="Next page"
+              activeOpacity={0.78}
+              onPress={handleNextPage}
+              disabled={isNextDisabled}
+              style={[
+                styles.paginationButton,
+                {
+                  borderColor: theme.border,
+                },
+                isNextDisabled && styles.paginationButtonDisabled,
+              ]}
+            >
+              <MaterialIcons
+                name="chevron-right"
+                size={24}
+                color={isNextDisabled ? theme.textSecondary : theme.accent}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -233,6 +321,71 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderTopWidth: StyleSheet.hairlineWidth,
     padding: Spacing.three,
+  },
+  pagination: {
+    minHeight: 56,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: Spacing.three,
+    gap: Spacing.three,
+  },
+  rowsPerPage: {
+    minWidth: 0,
+    flexShrink: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: Spacing.two,
+  },
+  rowsPerPageOptions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.one,
+  },
+  rowsPerPageOption: {
+    minWidth: 36,
+    minHeight: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: Spacing.two,
+  },
+  rowsPerPageOptionText: {
+    textAlign: "center",
+  },
+  paginationActions: {
+    flexShrink: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: Spacing.three,
+  },
+  displayedRows: {
+    minWidth: 72,
+    textAlign: "right",
+  },
+  paginationButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.one,
+  },
+  paginationButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  paginationButtonDisabled: {
+    opacity: 0.5,
+  },
+  paginationLabel: {
+    flexShrink: 0,
   },
 });
 
