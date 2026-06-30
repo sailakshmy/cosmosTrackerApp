@@ -1,18 +1,14 @@
 import { fetchRowsFromTableData } from "@/utilities/helper";
 import type { NeoTableData } from "@/utilities/types";
 import { useEffect, useMemo, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Table, Row } from "react-native-reanimated-table";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
 import { ThemedText } from "./themed-text";
+import useTableHook from "@/hooks/useTableHook";
 
 type TableComponentProps = {
   tableData?: NeoTableData;
@@ -32,45 +28,22 @@ const widthArr = [112, 96, 196, 100, 176, 184];
 const rowsPerPageOptions = [5, 10, 25];
 
 const TableComponent = ({ tableData, title }: TableComponentProps) => {
-  const theme = useTheme();
-  const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
-  const startIndex = currentPage * itemsPerPage;
-
-  const tableRows = useMemo(
-    () => fetchRowsFromTableData(tableData ?? []),
-    [tableData],
-  );
-  const paginatedRows = tableRows?.slice(startIndex, startIndex + itemsPerPage);
-  console.log("paginatedRows", paginatedRows?.length);
-  console.log("tableR", tableRows?.length);
-  const totalRows = tableRows.length;
-  const totalPages = Math.ceil(totalRows / itemsPerPage);
-  const rangeStart = totalRows === 0 ? 0 : startIndex + 1;
-  const rangeEnd = Math.min(startIndex + itemsPerPage, totalRows);
-  const isPrevDisabled = currentPage === 0;
-  const isNextDisabled = totalPages === 0 || currentPage >= totalPages - 1;
-
-  const [selected, setSelected] = useState(tableRows?.[0]?.[1]);
-  console.log("selected", selected);
-
-  useEffect(() => {
-    setCurrentPage(0);
-  }, [itemsPerPage, totalRows]);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
-  };
-  const handlePrevPage = () => {
-    if (currentPage > 0) setCurrentPage(currentPage - 1);
-  };
-  const borderStyle = useMemo(
-    () => ({
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: theme.border,
-    }),
-    [theme.border],
-  );
+  const {
+    theme,
+    borderStyle,
+    paginatedRows,
+    handleNextPage,
+    handlePrevPage,
+    setSelected,
+    selected,
+    itemsPerPage,
+    setItemsPerPage,
+    rangeStart,
+    rangeEnd,
+    totalRows,
+    isPrevDisabled,
+    isNextDisabled,
+  } = useTableHook({ tableData });
   return (
     <View
       style={[
