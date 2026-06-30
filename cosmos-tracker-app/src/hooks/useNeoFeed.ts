@@ -48,7 +48,6 @@ const useNeoFeed = () => {
     retry: 3,
     retryDelay: 100,
   });
-  console.log("Node", neoFeedData);
 
   return {
     theme,

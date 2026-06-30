@@ -71,7 +71,7 @@ export const fetchNeoFeedData = async (
     { signal },
   );
   const neoFeed = await neoFeedData?.json();
-  console.log("neoFeed", neoFeed);
+  // console.log("neoFeed", neoFeed);
   return neoFeed;
 };
 

@@ -1,7 +1,13 @@
 import { fetchRowsFromTableData } from "@/utilities/helper";
 import type { NeoTableData } from "@/utilities/types";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Button,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Table, Row } from "react-native-reanimated-table";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -26,10 +32,28 @@ const widthArr = [112, 96, 196, 100, 176, 184];
 
 const TableComponent = ({ tableData, title }: TableComponentProps) => {
   const theme = useTheme();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const startIndex = currentPage * itemsPerPage;
+
   const tableRows = useMemo(
     () => fetchRowsFromTableData(tableData ?? []),
     [tableData],
   );
+  const paginatedRows = tableRows?.slice(startIndex, startIndex + itemsPerPage);
+  console.log("paginatedRows", paginatedRows?.length);
+  console.log("tableR", tableRows?.length);
+  const totalPages = Math.ceil(tableRows?.length / itemsPerPage);
+
+  const [selected, setSelected] = useState(tableRows?.[0]?.[1]);
+  console.log("selected", selected);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
+  };
+  const handlePrevPage = () => {
+    if (currentPage > 0) setCurrentPage(currentPage - 1);
+  };
   const borderStyle = useMemo(
     () => ({
       borderWidth: StyleSheet.hairlineWidth,
@@ -37,8 +61,6 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
     }),
     [theme.border],
   );
-  const [selected, setSelected] = useState(tableRows?.[0]?.[1]);
-  console.log("selected", selected);
   return (
     <View
       style={[
@@ -74,10 +96,10 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
               textStyle={[styles.headerText, { color: theme.accent }]}
             />
           </Table>
-          {tableRows.length ? (
+          {paginatedRows.length ? (
             <ScrollView style={styles.dataWrapper} nestedScrollEnabled>
               <Table borderStyle={borderStyle}>
-                {tableRows.map((rowData, index) => (
+                {paginatedRows.map((rowData, index) => (
                   <TouchableOpacity
                     activeOpacity={0.75}
                     key={`${rowData[1] ?? "neo"}-${index}`}
@@ -121,6 +143,27 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
           )}
         </View>
       </ScrollView>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: 15,
+        }}
+      >
+        <Button
+          title="Previous"
+          onPress={handlePrevPage}
+          disabled={currentPage === 0}
+        />
+        <ThemedText>
+          Page {currentPage + 1} of {totalPages}
+        </ThemedText>
+        <Button
+          title="Next"
+          onPress={handleNextPage}
+          disabled={currentPage === totalPages - 1}
+        />
+      </View>
     </View>
   );
 };
