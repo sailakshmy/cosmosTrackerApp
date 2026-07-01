@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTheme } from "./use-theme";
 import { addDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -8,7 +8,7 @@ const useNeoFeed = () => {
   const theme = useTheme();
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(() => addDays(new Date(), 7));
-
+  const rangeEndDate = useMemo(() => addDays(new Date(), 7), []);
   const onDateRangeChange = (selectedDate: Date, selectedEndDate: Date) => {
     setStartDate(selectedDate);
     setEndDate(selectedEndDate);
@@ -58,6 +58,7 @@ const useNeoFeed = () => {
     isLoading,
     neoFeedData,
     sortedObjectList,
+    rangeEndDate,
   };
 };
 

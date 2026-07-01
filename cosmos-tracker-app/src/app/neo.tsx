@@ -26,6 +26,7 @@ export default function NeoScreen() {
     isFetching,
     isLoading,
     sortedObjectList,
+    rangeEndDate,
   } = useNeoFeed();
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -61,6 +62,7 @@ export default function NeoScreen() {
                         selectedStartDate={startDate}
                         selectedEndDate={endDate}
                         onChangeDate={onDateRangeChange}
+                        rangeEndDate={rangeEndDate}
                       />
                     </View>
 

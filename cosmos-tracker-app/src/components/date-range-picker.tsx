@@ -10,12 +10,14 @@ export interface InlineDateRangePickerProps {
   selectedStartDate: Date;
   selectedEndDate: Date;
   onChangeDate: (selectedStartDate: Date, selectedEndDate: Date) => void;
+  rangeEndDate: Date;
 }
 
 const InlineDateRangePicker = ({
   selectedEndDate,
   selectedStartDate,
   onChangeDate,
+  rangeEndDate,
 }: InlineDateRangePickerProps) => {
   const {
     onPressCalendarIcon,
@@ -112,7 +114,7 @@ const InlineDateRangePicker = ({
             onChange={({ startDate, endDate }) =>
               onChangeDateRange(startDate, endDate)
             }
-            maxDate={new Date()}
+            maxDate={rangeEndDate}
             mode="range"
             allowRangeReset
           />
