@@ -1,31 +1,16 @@
-import { fetchRowsFromTableData } from "@/utilities/helper";
 import type { NeoTableData } from "@/utilities/types";
-import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Table, Row } from "react-native-reanimated-table";
 import { Spacing } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
-
 import { ThemedText } from "./themed-text";
 import useTableHook from "@/hooks/useTableHook";
+import Dropdown from "./dropdown";
 
 type TableComponentProps = {
   tableData?: NeoTableData;
   title?: string;
 };
-
-const tableHead = [
-  "Date",
-  "Id",
-  "Name",
-  "Hazardous",
-  "Miss Distance (km)",
-  "Relative Velocity (kmph)",
-];
-
-const widthArr = [112, 96, 196, 100, 176, 184];
-const rowsPerPageOptions = [5, 10, 25];
 
 const TableComponent = ({ tableData, title }: TableComponentProps) => {
   const {
@@ -36,13 +21,15 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
     handlePrevPage,
     setSelected,
     selected,
-    itemsPerPage,
     setItemsPerPage,
     rangeStart,
     rangeEnd,
     totalRows,
     isPrevDisabled,
     isNextDisabled,
+    tableHead,
+    rowsPerPageOptions,
+    widthArr,
   } = useTableHook({ tableData });
   return (
     <View
@@ -87,7 +74,7 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
                     activeOpacity={0.75}
                     key={`${rowData[1] ?? "neo"}-${index}`}
                     onPress={() => {
-                      console.log("Selected row", rowData?.[1]);
+                      // console.log("Selected row", rowData?.[1]);
                       setSelected(rowData?.[1]);
                     }}
                   >
@@ -144,34 +131,11 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
             Rows per page:
           </ThemedText>
           <View style={styles.rowsPerPageOptions}>
-            {rowsPerPageOptions.map((option) => {
-              const isSelected = option === itemsPerPage;
-
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.78}
-                  key={option}
-                  onPress={() => setItemsPerPage(option)}
-                  style={[
-                    styles.rowsPerPageOption,
-                    {
-                      backgroundColor: isSelected
-                        ? theme.backgroundSelected
-                        : "transparent",
-                      borderColor: isSelected ? theme.accent : theme.border,
-                    },
-                  ]}
-                >
-                  <ThemedText
-                    type="smallBold"
-                    themeColor={isSelected ? "accent" : "textSecondary"}
-                    style={styles.rowsPerPageOptionText}
-                  >
-                    {option}
-                  </ThemedText>
-                </TouchableOpacity>
-              );
-            })}
+            <Dropdown
+              optionsList={rowsPerPageOptions}
+              setSelectedOption={setItemsPerPage}
+              defaultOption="5"
+            />
           </View>
         </View>
 
