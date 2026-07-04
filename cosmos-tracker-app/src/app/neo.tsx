@@ -15,6 +15,7 @@ import Card from "@/components/card";
 import CardSkeleton from "@/components/card-skeleton";
 import { convertEpochDateToMonthDateYearFormat } from "@/utilities/helper";
 import TableComponent from "@/components/table";
+import { useState } from "react";
 
 export default function NeoScreen() {
   const {
@@ -28,6 +29,8 @@ export default function NeoScreen() {
     sortedObjectList,
     rangeEndDate,
   } = useNeoFeed();
+  const [selectedNeoId, setSelectedNeoId] = useState<undefined | string>();
+  console.log("selectedneoId", selectedNeoId);
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
@@ -105,6 +108,7 @@ export default function NeoScreen() {
                         <TableComponent
                           tableData={sortedObjectList}
                           title="Close Approach Details"
+                          setSelectedNeoId={setSelectedNeoId}
                         />
                       </>
                     )}

@@ -3,7 +3,7 @@ import { useTheme } from "./use-theme";
 import { fetchRowsFromTableData } from "@/utilities/helper";
 import { StyleSheet } from "react-native";
 
-const useTableHook = ({ tableData }) => {
+const useTableHook = ({ tableData, setSelectedNeoId }) => {
   const theme = useTheme();
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -29,6 +29,10 @@ const useTableHook = ({ tableData }) => {
   useEffect(() => {
     setCurrentPage(0);
   }, [itemsPerPage, totalRows]);
+
+  useEffect(() => {
+    setSelectedNeoId(tableRows?.[0]?.[1]);
+  }, [tableRows]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
@@ -59,6 +63,11 @@ const useTableHook = ({ tableData }) => {
     { label: "15", value: 15 },
   ];
 
+  const onSelectRow = (row) => {
+    setSelected(row?.[1]);
+    setSelectedNeoId(row?.[1]);
+  };
+
   return {
     borderStyle,
     handleNextPage,
@@ -77,6 +86,7 @@ const useTableHook = ({ tableData }) => {
     tableHead,
     widthArr,
     rowsPerPageOptions,
+    onSelectRow,
   };
 };
 

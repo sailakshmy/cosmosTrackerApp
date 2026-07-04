@@ -6,20 +6,25 @@ import { Spacing } from "@/constants/theme";
 import { ThemedText } from "./themed-text";
 import useTableHook from "@/hooks/useTableHook";
 import Dropdown from "./dropdown";
+import { SetStateAction, Dispatch } from "react";
 
 type TableComponentProps = {
   tableData?: NeoTableData;
   title?: string;
+  setSelectedNeoId: Dispatch<SetStateAction<string | undefined>>;
 };
 
-const TableComponent = ({ tableData, title }: TableComponentProps) => {
+const TableComponent = ({
+  tableData,
+  title,
+  setSelectedNeoId,
+}: TableComponentProps) => {
   const {
     theme,
     borderStyle,
     paginatedRows,
     handleNextPage,
     handlePrevPage,
-    setSelected,
     selected,
     setItemsPerPage,
     rangeStart,
@@ -30,7 +35,8 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
     tableHead,
     rowsPerPageOptions,
     widthArr,
-  } = useTableHook({ tableData });
+    onSelectRow,
+  } = useTableHook({ tableData, setSelectedNeoId });
   return (
     <View
       style={[
@@ -73,10 +79,7 @@ const TableComponent = ({ tableData, title }: TableComponentProps) => {
                   <TouchableOpacity
                     activeOpacity={0.75}
                     key={`${rowData[1] ?? "neo"}-${index}`}
-                    onPress={() => {
-                      // console.log("Selected row", rowData?.[1]);
-                      setSelected(rowData?.[1]);
-                    }}
+                    onPress={() => onSelectRow(rowData)}
                   >
                     <Row
                       data={rowData}
