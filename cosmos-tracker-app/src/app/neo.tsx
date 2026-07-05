@@ -15,7 +15,9 @@ import Card from "@/components/card";
 import CardSkeleton from "@/components/card-skeleton";
 import { convertEpochDateToMonthDateYearFormat } from "@/utilities/helper";
 import TableComponent from "@/components/table";
-import { useState } from "react";
+import useNeoLookupHook from "@/hooks/useNeoLookupHook";
+import DetailCardSkeleton from "@/components/detail-card-skeleton";
+import DetailCard from "@/components/detail-card";
 
 export default function NeoScreen() {
   const {
@@ -29,8 +31,10 @@ export default function NeoScreen() {
     sortedObjectList,
     rangeEndDate,
   } = useNeoFeed();
-  const [selectedNeoId, setSelectedNeoId] = useState<undefined | string>();
-  console.log("selectedneoId", selectedNeoId);
+  const { setSelectedNeoId, isFetchingNeo, isLoadingNeo, selectedNeo } =
+    useNeoLookupHook();
+
+  console.log("selectedNeo", selectedNeo);
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
@@ -110,6 +114,14 @@ export default function NeoScreen() {
                           title="Close Approach Details"
                           setSelectedNeoId={setSelectedNeoId}
                         />
+                        {isFetchingNeo || isLoadingNeo ? (
+                          <DetailCardSkeleton />
+                        ) : selectedNeo?.detailList?.length ? (
+                          <DetailCard
+                            title={selectedNeo?.name}
+                            items={selectedNeo?.detailList}
+                          />
+                        ) : null}
                       </>
                     )}
                   </View>

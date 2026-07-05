@@ -104,3 +104,18 @@ export const fetchRowsFromTableData = (tableData: NeoTableData): Data[] => {
   });
   return rows;
 };
+
+export const fetchNeoDataById = async (neoId: string, signal?: AbortSignal) => {
+  const neoDataRes = await fetch(
+    `${process.env.EXPO_PUBLIC_APOD_BASE_URL}/neo/${neoId}`,
+    {
+      signal,
+    },
+  );
+  const neoData = await neoDataRes?.json();
+  return neoData;
+};
+
+export const formatKeyNames = (symbol: string, name: string) => {
+  return name?.split(symbol)?.join(" ");
+};

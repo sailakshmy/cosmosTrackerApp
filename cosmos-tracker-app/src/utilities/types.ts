@@ -1,3 +1,5 @@
+import { DetailCardItem } from "@/components/detail-card";
+
 interface RelativeVelocity {
   kilometers_per_second: string;
   kilometers_per_hour: string;
@@ -41,3 +43,24 @@ export interface NeoTableObject {
 }
 
 export type NeoTableData = Array<Record<string, NeoTableObject[]>>;
+
+export interface NeoLookupData {
+  name: string;
+  absolute_magnitude_h: number | string;
+  orbital_data: Record<string, string | number | null | undefined>;
+  estimated_diameter?: {
+    kilometers?: {
+      estimated_diameter_max?: number;
+      estimated_diameter_min?: number;
+    };
+  };
+}
+
+export interface NeoLookupResponse {
+  neoLookUpData?: NeoLookupData;
+}
+
+export interface SelectedNeo {
+  name: string;
+  detailList: DetailCardItem[];
+}
