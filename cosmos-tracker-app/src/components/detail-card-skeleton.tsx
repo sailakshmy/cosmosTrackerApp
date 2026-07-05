@@ -47,9 +47,10 @@ export function DetailCardSkeleton({
   const itemWidth =
     width >= 760
       ? styles.threeColumnItem
-      : width >= 520
-        ? styles.twoColumnItem
-        : styles.oneColumnItem;
+      : // width >= 520
+        // ?
+        styles.twoColumnItem;
+  // : styles.oneColumnItem;
 
   const translateX = shimmer.interpolate({
     inputRange: [0, 1],
@@ -107,9 +108,7 @@ export function DetailCardSkeleton({
                 shimmerOpacity={shimmerOpacity}
                 translateX={translateX}
                 style={
-                  index % 3 === 1
-                    ? styles.detailValueShort
-                    : styles.detailValue
+                  index % 3 === 1 ? styles.detailValueShort : styles.detailValue
                 }
               />
             </View>
@@ -138,7 +137,9 @@ function SkeletonLine({
       style={[
         styles.line,
         {
-          backgroundColor: isDark ? Colors.dark.background : Colors.light.border,
+          backgroundColor: isDark
+            ? Colors.dark.background
+            : Colors.light.border,
         },
         style,
       ]}

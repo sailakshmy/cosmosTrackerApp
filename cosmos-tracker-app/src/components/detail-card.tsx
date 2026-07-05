@@ -36,9 +36,10 @@ export function DetailCard({
   const itemWidth =
     width >= 760
       ? styles.threeColumnItem
-      : width >= 520
-        ? styles.twoColumnItem
-        : styles.oneColumnItem;
+      : // width >= 520
+        // ?
+        styles.twoColumnItem;
+  // : styles.oneColumnItem;
 
   return (
     <View
