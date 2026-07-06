@@ -1,12 +1,13 @@
 {
   "expo": {
-    "name": "cosmos-tracker-app",
-    "slug": "cosmos-tracker-app",
+    "name": "CosmoScope",
+    "slug": "CosmoScope",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/favicon.png",
     "scheme": "cosmostrackerapp",
     "userInterfaceStyle": "automatic",
+    "jsEngine": "jsc",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -30,7 +31,7 @@
         {
           "backgroundColor": "#208AEF",
           "android": {
-            "image": "./assets/images/splash-icon.png",
+            "image": "./assets/images/favicon.png",
             "imageWidth": 76
           }
         }
