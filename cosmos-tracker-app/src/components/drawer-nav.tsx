@@ -51,7 +51,7 @@ export default function DrawerNav() {
         name="index" // This is the name of the page and must match the url from root
         options={{
           drawerLabel: "Home",
-          title: "Cosmos Tracker",
+          title: "CosmoScope",
           drawerIcon: ({ color, size }) => (
             <SymbolView name="sparkles" tintColor={color} size={size - 2} />
           ),
@@ -61,7 +61,7 @@ export default function DrawerNav() {
         name="neo" // This is the name of the page and must match the url from root
         options={{
           drawerLabel: "Near Earth Objects",
-          title: "Cosmos Tracker",
+          title: "CosmoScope",
           drawerIcon: ({ color, size }) => (
             <SymbolView name="scope" tintColor={color} size={size - 2} />
           ),
