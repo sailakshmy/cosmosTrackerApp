@@ -68,6 +68,57 @@ const EarthGlobal = () => {
       const cloudTexture = textureLoader.load(
         require("../../assets/textures/earth-clouds.jpg"),
       );
+
+      const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
+      const earthMaterial = new THREE.MeshPhongMaterial({
+        map: earthTexture,
+        shininess: 12,
+      });
+      const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      earthRef.current = earth;
+      scene.add(earth);
+
+      const cloudGeometry = new THREE.SphereGeometry(1.015, 64, 64);
+      const cloudMaterial = new THREE.MeshPhongMaterial({
+        map: cloudTexture,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+      });
+
+      const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+      cloudRef.current = cloud;
+      scene.add(cloud);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+      scene.add(ambientLight);
+
+      const sunlight = new THREE.DirectionalLight(0xffffff, 1.8);
+      sunlight.position.set(5, 3, 5);
+      scene.add(sunlight);
+
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 1000;
+      const starPositions = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount * 3; i += 3) {
+        starPositions[i] = (Math.random() - 0.5) * 20;
+        starPositions[i + 1] = (Math.random() - 0.5) * 20;
+        starPositions[i + 2] = (Math.random() - 0.5) * 20;
+      }
+
+      starGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(starPositions, 3),
+      );
+
+      const starMaterial = new THREE.PointsMaterial({
+        size: 0.018,
+        sizeAttenuation: true,
+      });
+
+      const stars = new THREE.Points(starGeometry, starMaterial);
+      scene.add(stars);
     },
     [size],
   );
