@@ -13,7 +13,6 @@ const useApodHook = () => {
     mediaType: "",
     src: "",
   });
-  // const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date());
   const selectedDate = fetchISOStringDate(date);
 
