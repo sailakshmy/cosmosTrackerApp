@@ -12,7 +12,6 @@ export default function TabLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
         <AnimatedSplashOverlay />
-        {/* <AppTabs /> */}
         <DrawerNav />
       </QueryClientProvider>
     </ThemeProvider>
