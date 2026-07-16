@@ -24,7 +24,6 @@ const useTableHook = ({ tableData, setSelectedNeoId }) => {
   const isNextDisabled = totalPages === 0 || currentPage >= totalPages - 1;
 
   const [selected, setSelected] = useState(tableRows?.[0]?.[1]);
-  console.log("selected", selected);
 
   useEffect(() => {
     setCurrentPage(0);
