@@ -19,7 +19,6 @@ export const fetchImageForSelectedDate = async (
   signal: AbortSignal,
 ) => {
   const date = fetchISOStringDate(selectedDate);
-  console.log("Triggered the API");
   const apodData = await fetch(
     `${process.env.EXPO_PUBLIC_APOD_BASE_URL}?date=${date}`,
     { signal },
