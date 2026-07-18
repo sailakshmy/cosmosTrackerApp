@@ -119,6 +119,32 @@ const EarthGlobal = () => {
 
       const stars = new THREE.Points(starGeometry, starMaterial);
       scene.add(stars);
+
+      const render = () => {
+        animationFrameRef.current = requestAnimationFrame(render);
+
+        if (earthRef.current) {
+          earthRef.current.rotation.y += rotationSpeedRef.current.y;
+          earthRef.current.rotation.x += rotationSpeedRef.current.x;
+        }
+
+        if (cloudRef.current) {
+          cloudRef.current.rotation.y += rotationSpeedRef.current.y * 1.15;
+          cloudRef.current.rotation.x += rotationSpeedRef.current.x;
+        }
+
+        rotationSpeedRef.current.x *= 0.98;
+
+        if (Math.abs(rotationSpeedRef.current.y) < 0.004) {
+          rotationSpeedRef.current.y += 0.00002;
+        }
+
+        camera.position.z = cameraDistanceRef.current;
+
+        renderer.render(scene, camera);
+        gl.endFrameEXP();
+      };
+      render();
     },
     [size],
   );
