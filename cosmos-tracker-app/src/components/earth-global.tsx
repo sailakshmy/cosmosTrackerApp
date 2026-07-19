@@ -1,7 +1,12 @@
 import { useCallback, useRef, useState } from "react";
-import { LayoutChangeEvent, PanResponder, View } from "react-native";
+import {
+  LayoutChangeEvent,
+  PanResponder,
+  StyleSheet,
+  View,
+} from "react-native";
 import * as THREE from "three";
-import { ExpoWebGLRenderingContext } from "expo-gl";
+import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
 import { Renderer, TextureLoader } from "expo-three";
 
 interface Size {
@@ -10,6 +15,7 @@ interface Size {
 }
 
 const EarthGlobal = () => {
+  console.log("Inside the earth Global");
   const [size, setSize] = useState<Size | null>();
   const earthRef = useRef<THREE.Mesh | null>(null);
   const cloudRef = useRef<THREE.Mesh | null>(null);
@@ -48,7 +54,7 @@ const EarthGlobal = () => {
       if (!size) return;
       const renderer = new Renderer({ gl });
       renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
-      renderer.setClearColor(0x20617, 1);
+      renderer.setClearColor(0x020617, 1);
 
       const scene = new THREE.Scene();
 
@@ -163,7 +169,34 @@ const EarthGlobal = () => {
     [size],
   );
 
-  return <View></View>;
+  return (
+    <View
+      style={styles.container}
+      onLayout={handleLayout}
+      {...panResponder.panHandlers}
+    >
+      {size ? (
+        <GLView
+          style={styles.glView}
+          onContextCreate={onContextCreate}
+          msaaSamples={4}
+        />
+      ) : null}
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    minHeight: 420,
+    borderRadius: 28,
+    overflow: "hidden",
+    backgroundColor: "#020617",
+  },
+  glView: {
+    flex: 1,
+  },
+});
 
 export default EarthGlobal;
