@@ -1,7 +1,7 @@
 import { SpaceBackground } from "@/components/space-background";
 import { useTheme } from "../hooks/use-theme";
 import { View, StyleSheet, ScrollView, SafeAreaView } from "react-native";
-import EarthGlobal from "@/components/earth-global";
+
 import { ThemedView } from "@/components/themed-view";
 import {
   BottomTabInset,
@@ -10,6 +10,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { ThemedText } from "@/components/themed-text";
+import EarthGlobal from "@/components/earth-global";
 
 const SatelliteTrackerScreen = () => {
   const theme = useTheme();
@@ -42,7 +43,7 @@ const SatelliteTrackerScreen = () => {
                     <ThemedText type="subtitle" themeColor="accent">
                       Satellite Tracker
                     </ThemedText>
-                    <View>
+                    <View style={styles.globeContainer}>
                       <EarthGlobal />
                     </View>
                   </View>
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   safeArea: {
+    width: "100%",
     flex: 1,
     paddingHorizontal: Spacing.three,
     alignItems: "center",
@@ -82,6 +84,7 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
   },
   heroSection: {
+    width: "100%",
     alignSelf: "stretch",
     borderWidth: 1,
     borderRadius: Spacing.three,
@@ -94,10 +97,18 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   contentStack: {
+    width: "100%",
     gap: Spacing.four,
   },
   headingStack: {
+    width: "100%",
     gap: Spacing.three,
+  },
+  globeContainer: {
+    width: "100%",
+    alignSelf: "stretch",
+    height: 420,
+    minHeight: 420,
   },
 });
 
