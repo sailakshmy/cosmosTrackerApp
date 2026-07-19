@@ -145,6 +145,20 @@ const EarthGlobal = () => {
         gl.endFrameEXP();
       };
       render();
+      return () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        earthGeometry.dispose();
+        earthMaterial.dispose();
+        cloudGeometry.dispose();
+        cloudMaterial.dispose();
+        starGeometry.dispose();
+        starMaterial.dispose();
+        earthTexture.dispose();
+        cloudTexture.dispose();
+        renderer.dispose();
+      };
     },
     [size],
   );
