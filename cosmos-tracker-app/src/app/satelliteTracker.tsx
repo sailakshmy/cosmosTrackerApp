@@ -1,7 +1,7 @@
 import { SpaceBackground } from "@/components/space-background";
 import { useTheme } from "../hooks/use-theme";
 import { View, StyleSheet, ScrollView, SafeAreaView } from "react-native";
-
+import EarthGlobal from "@/components/earth-global";
 import { ThemedView } from "@/components/themed-view";
 import {
   BottomTabInset,
@@ -10,7 +10,6 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { ThemedText } from "@/components/themed-text";
-import EarthGlobal from "@/components/earth-global";
 
 const SatelliteTrackerScreen = () => {
   const theme = useTheme();

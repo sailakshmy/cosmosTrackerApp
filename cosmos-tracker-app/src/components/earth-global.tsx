@@ -1,142 +1,262 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Easing,
-  Image,
+  LayoutChangeEvent,
   PanResponder,
   StyleSheet,
   View,
 } from "react-native";
+import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
+import { Renderer, TextureLoader } from "expo-three";
+import * as THREE from "three";
 
-const earthTexture = require("../../assets/textures/earth-day.jpg");
-const cloudTexture = require("../../assets/textures/earth-clouds.jpg");
-const globeSize = 248;
-const textureWidth = globeSize * 2;
+interface Size {
+  width: number;
+  height: number;
+}
 
-const stars = [
-  { top: 46, left: 52, opacity: 0.8 },
-  { top: 76, left: 308, opacity: 0.55 },
-  { top: 130, left: 32, opacity: 0.65 },
-  { top: 160, left: 364, opacity: 0.7 },
-  { top: 260, left: 64, opacity: 0.45 },
-  { top: 306, left: 336, opacity: 0.75 },
-  { top: 361, left: 132, opacity: 0.6 },
-];
+const unsupportedPixelStoreParams = new Set([
+  0x9240, // UNPACK_FLIP_Y_WEBGL
+  0x9241, // UNPACK_PREMULTIPLY_ALPHA_WEBGL
+  0x9243, // UNPACK_COLORSPACE_CONVERSION_WEBGL
+]);
 
-const latitudeLines = [
-  { top: 44, left: 20, width: 208, height: 54, opacity: 0.2 },
-  { top: 82, left: 12, width: 224, height: 62, opacity: 0.24 },
-  { top: 124, left: 10, width: 228, height: 54, opacity: 0.2 },
-  { top: 160, left: 26, width: 196, height: 44, opacity: 0.16 },
-];
+const silenceUnsupportedPixelStorei = (gl: ExpoWebGLRenderingContext) => {
+  const originalPixelStorei = gl.pixelStorei.bind(gl);
 
-const longitudeLines = [
-  { left: 35, width: 68, rotate: "-12deg", opacity: 0.14 },
-  { left: 83, width: 72, rotate: "0deg", opacity: 0.18 },
-  { left: 136, width: 68, rotate: "12deg", opacity: 0.14 },
-];
+  gl.pixelStorei = ((pname: number, param: number) => {
+    if (unsupportedPixelStoreParams.has(pname)) {
+      return;
+    }
+
+    originalPixelStorei(pname, param);
+  }) as ExpoWebGLRenderingContext["pixelStorei"];
+
+  return () => {
+    gl.pixelStorei =
+      originalPixelStorei as ExpoWebGLRenderingContext["pixelStorei"];
+  };
+};
 
 const EarthGlobal = () => {
-  const spin = useRef(new Animated.Value(0)).current;
-  const spinAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
-  const dragRotationRef = useRef(0);
+  const [size, setSize] = useState<Size | null>(null);
+  const earthRef = useRef<THREE.Mesh | null>(null);
+  const cloudRef = useRef<THREE.Mesh | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const disposeSceneRef = useRef<(() => void) | null>(null);
+  const isMountedRef = useRef(true);
+  const rotationSpeedRef = useRef({ x: 0, y: 0.004 });
 
-  const startSpin = useCallback(() => {
-    spinAnimationRef.current?.stop();
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
 
-    const animation = Animated.loop(
-      Animated.timing(spin, {
-        toValue: 1,
-        duration: 24000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    );
+    if (!width || !height) return;
 
-    spinAnimationRef.current = animation;
-    animation.start();
-  }, [spin]);
+    setSize((currentSize) => {
+      if (currentSize?.width === width && currentSize?.height === height) {
+        return currentSize;
+      }
+
+      return { width, height };
+    });
+  };
 
   useEffect(() => {
-    startSpin();
-
     return () => {
-      spinAnimationRef.current?.stop();
+      isMountedRef.current = false;
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      disposeSceneRef.current?.();
     };
-  }, [startSpin]);
+  }, []);
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: () => {
-        spin.stopAnimation((value) => {
-          dragRotationRef.current = value;
-        });
-      },
       onPanResponderMove: (_, gestureState) => {
-        const nextValue =
-          dragRotationRef.current - gestureState.dx / textureWidth;
-        spin.setValue(nextValue - Math.floor(nextValue));
+        rotationSpeedRef.current.y = gestureState.dx * 0.00008;
+        rotationSpeedRef.current.x = gestureState.dy * 0.00008;
       },
       onPanResponderRelease: () => {
-        startSpin();
+        rotationSpeedRef.current.x *= 0.92;
+        rotationSpeedRef.current.y *= 0.92;
+
+        if (Math.abs(rotationSpeedRef.current.y) < 0.001) {
+          rotationSpeedRef.current.y = 0.004;
+        }
       },
     }),
   ).current;
 
-  const translateX = spin.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -textureWidth],
-  });
+  const onContextCreate = useCallback(
+    async (gl: ExpoWebGLRenderingContext) => {
+      if (!size) return;
+
+      disposeSceneRef.current?.();
+      const restorePixelStorei = silenceUnsupportedPixelStorei(gl);
+      const bufferWidth = gl.drawingBufferWidth;
+      const bufferHeight = gl.drawingBufferHeight;
+
+      const renderer = new Renderer({
+        gl,
+        antialias: true,
+        alpha: true,
+        width: size.width, //bufferWidth,
+        height: size.height, //bufferHeight,
+      });
+      renderer.setSize(size.width, size.height);
+      // renderer.setSize(bufferWidth, bufferHeight);
+      // renderer.setViewport(0, 0, bufferWidth, bufferHeight);
+      renderer.setClearColor(0x020617, 1);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        bufferWidth / bufferHeight,
+        0.1,
+        100,
+      );
+      camera.position.set(0, 0, 2.9);
+
+      const textureLoader = new TextureLoader();
+      const earthTexture = textureLoader.load(
+        require("../../assets/textures/earth-day-2048.jpg"),
+      );
+      const cloudTexture = textureLoader.load(
+        require("../../assets/textures/earth-clouds-2048.jpg"),
+      );
+
+      const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
+      const earthMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        map: earthTexture,
+        shininess: 12,
+      });
+      const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      earth.rotation.x = -0.18;
+      earthRef.current = earth;
+      scene.add(earth);
+
+      const cloudGeometry = new THREE.SphereGeometry(1.012, 64, 64);
+      const cloudMaterial = new THREE.MeshPhongMaterial({
+        map: cloudTexture,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+      });
+      const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+      clouds.rotation.x = -0.18;
+      cloudRef.current = clouds;
+      scene.add(clouds);
+
+      const atmosphereGeometry = new THREE.SphereGeometry(1.04, 64, 64);
+      const atmosphereMaterial = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.09,
+        side: THREE.BackSide,
+      });
+      const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+      scene.add(atmosphere);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+      scene.add(ambientLight);
+
+      const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      sunLight.position.set(4, 2, 5);
+      scene.add(sunLight);
+
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 1000;
+      const starPositions = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount * 3; i += 3) {
+        starPositions[i] = (Math.random() - 0.5) * 20;
+        starPositions[i + 1] = (Math.random() - 0.5) * 20;
+        starPositions[i + 2] = (Math.random() - 0.5) * 20;
+      }
+
+      starGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(starPositions, 3),
+      );
+
+      const starMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.015,
+        sizeAttenuation: true,
+      });
+      const stars = new THREE.Points(starGeometry, starMaterial);
+      scene.add(stars);
+
+      const render = () => {
+        if (!isMountedRef.current) return;
+
+        animationFrameRef.current = requestAnimationFrame(render);
+
+        if (earthRef.current) {
+          earthRef.current.rotation.y += rotationSpeedRef.current.y;
+          earthRef.current.rotation.x += rotationSpeedRef.current.x;
+        }
+
+        if (cloudRef.current) {
+          cloudRef.current.rotation.y += rotationSpeedRef.current.y * 1.2;
+          cloudRef.current.rotation.x += rotationSpeedRef.current.x;
+        }
+
+        rotationSpeedRef.current.x *= 0.98;
+
+        if (Math.abs(rotationSpeedRef.current.y) < 0.004) {
+          rotationSpeedRef.current.y += 0.00002;
+        }
+
+        // renderer.setViewport(0, 0, bufferWidth, bufferHeight);
+        renderer.render(scene, camera);
+        gl.endFrameEXP();
+      };
+
+      render();
+
+      disposeSceneRef.current = () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+
+        earthGeometry.dispose();
+        earthMaterial.dispose();
+        earthTexture.dispose();
+        cloudGeometry.dispose();
+        cloudMaterial.dispose();
+        cloudTexture.dispose();
+        atmosphereGeometry.dispose();
+        atmosphereMaterial.dispose();
+        starGeometry.dispose();
+        starMaterial.dispose();
+        renderer.dispose();
+        restorePixelStorei();
+      };
+    },
+    [size],
+  );
 
   return (
-    <View style={styles.container} {...panResponder.panHandlers}>
-      {stars.map((star, index) => (
-        <View key={index} style={[styles.star, star]} />
-      ))}
-
-      <View style={styles.globeStage}>
-        {/* <View style={styles.outerGlow} /> */}
-
-        <View style={styles.globe}>
-          <Animated.View
-            style={[styles.textureStrip, { transform: [{ translateX }] }]}
-          >
-            <Image
-              source={earthTexture}
-              style={styles.textureImage}
-              resizeMode="stretch"
-            />
-            <Image
-              source={earthTexture}
-              style={styles.textureImage}
-              resizeMode="stretch"
-            />
-          </Animated.View>
-
-          <Animated.View
-            style={[styles.cloudStrip, { transform: [{ translateX }] }]}
-          >
-            <Image
-              source={cloudTexture}
-              style={styles.cloudImage}
-              resizeMode="stretch"
-            />
-            <Image
-              source={cloudTexture}
-              style={styles.cloudImage}
-              resizeMode="stretch"
-            />
-          </Animated.View>
-          <View style={styles.lightFalloff} />
-          {/* <View style={styles.leftTerminator} /> */}
-          {/* <View style={styles.shadow} /> */}
-          <View style={styles.rimShadow} />
-          <View style={styles.atmosphere} />
-          <View style={styles.specularHighlight} />
-        </View>
-      </View>
+    <View
+      style={styles.container}
+      onLayout={handleLayout}
+      {...panResponder.panHandlers}
+    >
+      {size ? (
+        <GLView
+          key={`${size.width}x${size.height}`}
+          style={[styles.glView, size]}
+          onContextCreate={onContextCreate}
+          msaaSamples={4}
+        />
+      ) : null}
     </View>
   );
 };
@@ -146,144 +266,12 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     minHeight: 420,
-    alignItems: "center",
-    justifyContent: "center",
     borderRadius: 28,
     overflow: "hidden",
     backgroundColor: "#020617",
   },
-  star: {
-    position: "absolute",
-    width: 3,
-    height: 3,
-    borderRadius: 999,
-    backgroundColor: "#f8fafc",
-  },
-  globeStage: {
-    width: 318,
-    height: 318,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  outerGlow: {
-    position: "absolute",
-    width: 286,
-    height: 286,
-    borderRadius: 999,
-    borderWidth: 18,
-    borderColor: "rgba(56, 189, 248, 0.08)",
-    backgroundColor: "rgba(14, 165, 233, 0.04)",
-  },
-  globe: {
-    width: globeSize,
-    height: globeSize,
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "#2563eb",
-    borderWidth: 2,
-    borderColor: "rgba(186, 230, 253, 0.82)",
-    shadowColor: "#38bdf8",
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.28,
-    shadowRadius: 26,
-    elevation: 12,
-  },
-  textureStrip: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    flexDirection: "row",
-    width: textureWidth * 2,
-    height: globeSize,
-  },
-  cloudStrip: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    flexDirection: "row",
-    width: textureWidth * 2,
-    height: globeSize,
-    opacity: 0.36,
-  },
-  textureImage: {
-    width: textureWidth,
-    height: globeSize,
-  },
-  cloudImage: {
-    width: textureWidth,
-    height: globeSize,
-  },
-  latitudeLine: {
-    position: "absolute",
-    borderWidth: 1,
-    borderColor: "rgba(224, 242, 254, 0.72)",
-    borderRadius: 999,
-    transform: [{ rotate: "-7deg" }],
-  },
-  longitudeLine: {
-    position: "absolute",
-    top: 10,
-    height: 228,
-    borderWidth: 1,
-    borderColor: "rgba(224, 242, 254, 0.62)",
-    borderRadius: 999,
-  },
-  lightFalloff: {
-    position: "absolute",
-    top: 12,
-    left: 22,
-    width: 132,
-    height: 138,
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-  },
-  leftTerminator: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    width: 76,
-    backgroundColor: "rgba(2, 6, 23, 0.24)",
-  },
-  shadow: {
-    position: "absolute",
-    top: -10,
-    right: -22,
-    width: 190,
-    height: 286,
-    borderRadius: 999,
-    backgroundColor: "rgba(2, 6, 23, 0.42)",
-  },
-  rimShadow: {
-    position: "absolute",
-    top: 8,
-    right: 6,
-    bottom: 8,
-    left: 6,
-    borderRadius: 999,
-    borderRightWidth: 18,
-    borderBottomWidth: 14,
-    borderColor: "rgba(2, 6, 23, 0.26)",
-  },
-  atmosphere: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    borderRadius: 999,
-    borderWidth: 10,
-    borderColor: "rgba(125, 211, 252, 0.22)",
-  },
-  specularHighlight: {
-    position: "absolute",
-    top: 30,
-    left: 48,
-    width: 78,
-    height: 54,
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
-    transform: [{ rotate: "-24deg" }],
+  glView: {
+    alignSelf: "stretch",
   },
 });
 
