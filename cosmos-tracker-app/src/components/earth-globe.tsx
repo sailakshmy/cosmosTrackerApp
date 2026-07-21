@@ -40,11 +40,41 @@ function Earth(rotationSpeedRef: {
     if (Math.abs(rotationSpeedRef.current.y) < 0.003) {
       rotationSpeedRef.current.y += 0.00003;
     }
-    return (
-      <mesh ref={earthRef}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshPhongMaterial map={earthTexture} shininess={12} />
-      </mesh>
-    );
   });
+  return (
+    <mesh ref={earthRef}>
+      <sphereGeometry args={[1, 64, 64]} />
+      <meshPhongMaterial map={earthTexture} shininess={12} />
+    </mesh>
+  );
+}
+
+function Clouds({
+  rotationSpeedRef,
+}: {
+  rotationSpeedRef: React.MutableRefObject<RotationSpeed>;
+}) {
+  const cloudsRef = useRef<THREE.Mesh>(null);
+  const cloudsTexture = useLoader(
+    TextureLoader,
+    require("../../assets/textures/earth-clouds-2048.jpg"),
+  );
+
+  useFrame(() => {
+    if (!cloudsRef.current) return;
+    cloudsRef.current.rotation.y += rotationSpeedRef.current.y * 1.15;
+    cloudsRef.current.rotation.x += rotationSpeedRef.current.x;
+  });
+
+  return (
+    <mesh ref={cloudsRef}>
+      <sphereGeometry args={[1.015, 64, 64]} />
+      <meshPhongMaterial
+        map={cloudsTexture}
+        transparent
+        opacity={0.35}
+        depthWrite={false}
+      />
+    </mesh>
+  );
 }
