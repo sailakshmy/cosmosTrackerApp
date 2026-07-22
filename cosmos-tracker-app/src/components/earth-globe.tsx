@@ -1,7 +1,8 @@
 import { TextureLoader, THREE } from "expo-three";
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber/native";
 import { SphereGeometry } from "three";
+import { ActivityIndicator, View } from "react-native";
 
 type RotationSpeed = { x: number; y: number };
 
@@ -76,5 +77,51 @@ function Clouds({
         depthWrite={false}
       />
     </mesh>
+  );
+}
+
+function Atmosphere() {
+  return (
+    <mesh>
+      <sphereGeometry args={[1.08, 64, 64]} />
+      <meshBasicMaterial
+        color="#60a5fa"
+        transparent
+        opacity={0.16}
+        side={THREE.BackSide}
+      />
+    </mesh>
+  );
+}
+
+function Stars() {
+  const starPositions = useMemo(() => {
+    const starCount = 900;
+    const positions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 20;
+      positions[i + 1] = (Math.random() - 0.5) * 20;
+      positions[i + 2] = (Math.random() - 0.5) * 20;
+    }
+    return positions;
+  }, []);
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[starPositions, 3]}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={0.18} sizeAttenuation />
+    </points>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <View>
+      <ActivityIndicator color="#93c5fd" />
+    </View>
   );
 }
