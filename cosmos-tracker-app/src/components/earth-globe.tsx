@@ -1,6 +1,6 @@
 import { TextureLoader, THREE } from "expo-three";
-import React, { useMemo, useRef } from "react";
-import { useFrame, useLoader } from "@react-three/fiber/native";
+import React, { Suspense, useMemo, useRef } from "react";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber/native";
 import { SphereGeometry } from "three";
 import { ActivityIndicator, PanResponder, View } from "react-native";
 
@@ -149,4 +149,25 @@ export default function EarthGlobe() {
       },
     });
   }, []);
+
+  return (
+    <View>
+      <Suspense fallback={<LoadingFallback />}>
+        <Canvas
+          camera={{
+            position: [0, 0, 4],
+            fov: 45,
+            near: 0.1,
+            far: 100,
+          }}
+          gl={{
+            antialias: true,
+          }}
+        >
+          <color attach="background" args={["#020617"]} />
+          <EarthScene rotationSpeedRef={rotationSpeedRef} />
+        </Canvas>
+      </Suspense>
+    </View>
+  );
 }
