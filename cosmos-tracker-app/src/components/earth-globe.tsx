@@ -2,7 +2,7 @@ import { TextureLoader, THREE } from "expo-three";
 import React, { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber/native";
 import { SphereGeometry } from "three";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, PanResponder, View } from "react-native";
 
 type RotationSpeed = { x: number; y: number };
 
@@ -124,4 +124,29 @@ function LoadingFallback() {
       <ActivityIndicator color="#93c5fd" />
     </View>
   );
+}
+
+export default function EarthGlobe() {
+  const rotationSpeedRef = useRef<RotationSpeed>({
+    x: 0,
+    y: 0.004,
+  });
+
+  const panResponder = useMemo(() => {
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        rotationSpeedRef.current.y = gestureState.dx * 0.00008;
+        rotationSpeedRef.current.x = gestureState.dy * 0.00008;
+      },
+      onPanResponderRelease: () => {
+        rotationSpeedRef.current.x *= 0.92;
+        rotationSpeedRef.current.y *= 0.92;
+        if (Math.abs(rotationSpeedRef.current.y) < 0.001) {
+          rotationSpeedRef.current.y = 0.004;
+        }
+      },
+    });
+  }, []);
 }
