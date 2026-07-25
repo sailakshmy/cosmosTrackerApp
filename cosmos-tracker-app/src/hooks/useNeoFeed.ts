@@ -26,7 +26,7 @@ const useNeoFeed = () => {
     const selStartDate = fetchISOStringDate(addDays(startDate, 1));
     const selEndDate = fetchISOStringDate(endDate);
     console.log("SelStartDate", selStartDate);
-    console.log("selEndDate", selEndDate);
+   // console.log("selEndDate", selEndDate);
     const updatedNeoFeedDate = await fetchNeoFeedData(
       selStartDate,
       selEndDate,
