@@ -10,6 +10,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { ThemedText } from "@/components/themed-text";
+import EarthGlobe from "@/components/earth-globe";
 
 const SatelliteTrackerScreen = () => {
   const theme = useTheme();
@@ -42,9 +43,10 @@ const SatelliteTrackerScreen = () => {
                     <ThemedText type="subtitle" themeColor="accent">
                       Satellite Tracker
                     </ThemedText>
-                    <View style={styles.globeContainer}>
+                    {/* <View style={styles.globeContainer}>
                       <EarthGlobal />
-                    </View>
+                    </View> */}
+                    <EarthGlobe />
                   </View>
                 </View>
               </View>

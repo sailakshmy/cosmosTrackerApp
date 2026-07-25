@@ -2,7 +2,12 @@ import { TextureLoader, THREE } from "expo-three";
 import React, { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber/native";
 import { SphereGeometry } from "three";
-import { ActivityIndicator, PanResponder, View } from "react-native";
+import {
+  ActivityIndicator,
+  PanResponder,
+  StyleSheet,
+  View,
+} from "react-native";
 
 type RotationSpeed = { x: number; y: number };
 
@@ -34,10 +39,12 @@ function Earth(rotationSpeedRef: {
 
   useFrame(() => {
     if (!earthRef.current) return;
+
     earthRef.current.rotation.y += rotationSpeedRef.current.y;
     earthRef.current.rotation.x += rotationSpeedRef.current.x;
 
-    rotationSpeedRef.current.x += 0.98;
+    rotationSpeedRef.current.x *= 0.98;
+
     if (Math.abs(rotationSpeedRef.current.y) < 0.003) {
       rotationSpeedRef.current.y += 0.00003;
     }
@@ -120,7 +127,7 @@ function Stars() {
 
 function LoadingFallback() {
   return (
-    <View>
+    <View style={styles.loading}>
       <ActivityIndicator color="#93c5fd" />
     </View>
   );
@@ -132,26 +139,31 @@ export default function EarthGlobe() {
     y: 0.004,
   });
 
-  const panResponder = useMemo(() => {
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        rotationSpeedRef.current.y = gestureState.dx * 0.00008;
-        rotationSpeedRef.current.x = gestureState.dy * 0.00008;
-      },
-      onPanResponderRelease: () => {
-        rotationSpeedRef.current.x *= 0.92;
-        rotationSpeedRef.current.y *= 0.92;
-        if (Math.abs(rotationSpeedRef.current.y) < 0.001) {
-          rotationSpeedRef.current.y = 0.004;
-        }
-      },
-    });
-  }, []);
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+
+        onPanResponderMove: (_, gestureState) => {
+          rotationSpeedRef.current.y = gestureState.dx * 0.00008;
+          rotationSpeedRef.current.x = gestureState.dy * 0.00008;
+        },
+
+        onPanResponderRelease: () => {
+          rotationSpeedRef.current.x *= 0.92;
+          rotationSpeedRef.current.y *= 0.92;
+
+          if (Math.abs(rotationSpeedRef.current.y) < 0.001) {
+            rotationSpeedRef.current.y = 0.004;
+          }
+        },
+      }),
+    [],
+  );
 
   return (
-    <View>
+    <View style={styles.container} {...panResponder.panHandlers}>
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
           camera={{
@@ -163,6 +175,7 @@ export default function EarthGlobe() {
           gl={{
             antialias: true,
           }}
+          style={styles.canvas}
         >
           <color attach="background" args={["#020617"]} />
           <EarthScene rotationSpeedRef={rotationSpeedRef} />
@@ -171,3 +184,21 @@ export default function EarthGlobe() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    height: 430,
+    borderRadius: 28,
+    overflow: "hidden",
+    backgroundColor: "#020617",
+  },
+  canvas: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#020617",
+  },
+});
