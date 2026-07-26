@@ -53,7 +53,7 @@ function EarthScene({
       <Stars />
       <Earth rotationSpeedRef={rotationSpeedRef} />
       <Clouds rotationSpeedRef={rotationSpeedRef} />
-      <Atmosphere />
+      {/* <Atmosphere /> */}
     </>
   );
 }
@@ -119,20 +119,6 @@ function Clouds({
   );
 }
 
-function Atmosphere() {
-  return (
-    <mesh>
-      <sphereGeometry args={[1.08, 64, 64]} />
-      <meshBasicMaterial
-        color="#60a5fa"
-        transparent
-        opacity={0.16}
-        side={THREE.BackSide}
-      />
-    </mesh>
-  );
-}
-
 function Stars() {
   const starPositions = useMemo(() => {
     const starCount = 900;
@@ -152,7 +138,7 @@ function Stars() {
           args={[starPositions, 3]}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.18} sizeAttenuation />
+      <pointsMaterial size={0.015} sizeAttenuation />
     </points>
   );
 }
