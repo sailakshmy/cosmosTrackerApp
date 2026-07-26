@@ -1,6 +1,7 @@
 import { TextureLoader, THREE } from "expo-three";
 import React, { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber/native";
+import type { RootState } from "@react-three/fiber";
 import { SphereGeometry } from "three";
 import {
   ActivityIndicator,
@@ -10,6 +11,35 @@ import {
 } from "react-native";
 
 type RotationSpeed = { x: number; y: number };
+
+const unsupportedPixelStoreParams = new Set([
+  0x9240, // UNPACK_FLIP_Y_WEBGL
+  0x9241, // UNPACK_PREMULTIPLY_ALPHA_WEBGL
+  0x9243, // UNPACK_COLORSPACE_CONVERSION_WEBGL
+]);
+
+type ExpoGLContext = ReturnType<THREE.WebGLRenderer["getContext"]>;
+
+function patchExpoGLContext(gl: ExpoGLContext) {
+  const originalPixelStorei = gl.pixelStorei.bind(gl);
+  const originalGetProgramInfoLog = gl.getProgramInfoLog.bind(gl);
+  const originalGetShaderInfoLog = gl.getShaderInfoLog.bind(gl);
+
+  gl.pixelStorei = ((pname: number, param: number) => {
+    if (unsupportedPixelStoreParams.has(pname)) {
+      return;
+    }
+
+    originalPixelStorei(pname, param);
+  }) as ExpoGLContext["pixelStorei"];
+
+  gl.getProgramInfoLog = ((program: WebGLProgram) =>
+    originalGetProgramInfoLog(program) ??
+    "") as ExpoGLContext["getProgramInfoLog"];
+
+  gl.getShaderInfoLog = ((shader: WebGLShader) =>
+    originalGetShaderInfoLog(shader) ?? "") as ExpoGLContext["getShaderInfoLog"];
+}
 
 function EarthScene({
   rotationSpeedRef,
@@ -28,14 +58,16 @@ function EarthScene({
   );
 }
 
-function Earth(rotationSpeedRef: {
+function Earth({
+  rotationSpeedRef,
+}: {
   rotationSpeedRef: React.MutableRefObject<RotationSpeed>;
 }) {
   const earthRef = useRef<THREE.Mesh>(null);
   const earthTexture = useLoader(
     TextureLoader,
     require("../../assets/textures/earth-day-2048.jpg"),
-  );
+  ) as THREE.Texture;
 
   useFrame(() => {
     if (!earthRef.current) return;
@@ -66,7 +98,7 @@ function Clouds({
   const cloudsTexture = useLoader(
     TextureLoader,
     require("../../assets/textures/earth-clouds-2048.jpg"),
-  );
+  ) as THREE.Texture;
 
   useFrame(() => {
     if (!cloudsRef.current) return;
@@ -139,6 +171,11 @@ export default function EarthGlobe() {
     y: 0.004,
   });
 
+  const handleCanvasCreated = (state: RootState) => {
+    patchExpoGLContext(state.gl.getContext());
+    state.gl.debug.checkShaderErrors = false;
+  };
+
   const panResponder = useMemo(
     () =>
       PanResponder.create({
@@ -175,6 +212,7 @@ export default function EarthGlobe() {
           gl={{
             antialias: true,
           }}
+          onCreated={handleCanvasCreated}
           style={styles.canvas}
         >
           <color attach="background" args={["#020617"]} />
