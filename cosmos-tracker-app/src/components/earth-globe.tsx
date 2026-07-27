@@ -1,11 +1,14 @@
 import {
   Suspense,
+  useCallback,
+  useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   ActivityIndicator,
-  Image,
+  LayoutChangeEvent,
   PanResponder,
   Platform,
   StyleSheet,
@@ -13,9 +16,12 @@ import {
 } from "react-native";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber/native";
 import type { RootState } from "@react-three/fiber";
-import { TextureLoader, THREE } from "expo-three";
+import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
+import { Renderer, TextureLoader } from "expo-three";
+import * as THREE from "three";
 
 type RotationSpeed = { x: number; y: number };
+type Size = { width: number; height: number };
 
 const unsupportedPixelStoreParams = new Set([
   0x9240, // UNPACK_FLIP_Y_WEBGL
@@ -47,6 +53,37 @@ const patchR3FExpoGLContext = (gl: R3FExpoGLContext) => {
     "") as R3FExpoGLContext["getShaderInfoLog"];
 };
 
+const patchExpoGLContext = (gl: ExpoWebGLRenderingContext) => {
+  const originalPixelStorei = gl.pixelStorei.bind(gl);
+  const originalGetProgramInfoLog = gl.getProgramInfoLog.bind(gl);
+  const originalGetShaderInfoLog = gl.getShaderInfoLog.bind(gl);
+
+  gl.pixelStorei = ((pname: number, param: number) => {
+    if (unsupportedPixelStoreParams.has(pname)) {
+      return;
+    }
+
+    originalPixelStorei(pname, param);
+  }) as ExpoWebGLRenderingContext["pixelStorei"];
+
+  gl.getProgramInfoLog = ((program: WebGLProgram) =>
+    originalGetProgramInfoLog(program) ??
+    "") as ExpoWebGLRenderingContext["getProgramInfoLog"];
+
+  gl.getShaderInfoLog = ((shader: WebGLShader) =>
+    originalGetShaderInfoLog(shader) ??
+    "") as ExpoWebGLRenderingContext["getShaderInfoLog"];
+
+  return () => {
+    gl.pixelStorei =
+      originalPixelStorei as ExpoWebGLRenderingContext["pixelStorei"];
+    gl.getProgramInfoLog =
+      originalGetProgramInfoLog as ExpoWebGLRenderingContext["getProgramInfoLog"];
+    gl.getShaderInfoLog =
+      originalGetShaderInfoLog as ExpoWebGLRenderingContext["getShaderInfoLog"];
+  };
+};
+
 function EarthScene({
   rotationSpeedRef,
 }: {
@@ -73,6 +110,7 @@ function Earth({
     TextureLoader,
     require("../../assets/textures/earth-day-2048.jpg"),
   ) as THREE.Texture;
+  earthTexture.colorSpace = THREE.SRGBColorSpace;
 
   useFrame(() => {
     if (!earthRef.current) return;
@@ -90,7 +128,11 @@ function Earth({
   return (
     <mesh ref={earthRef}>
       <sphereGeometry args={[1, 64, 64]} />
-      <meshPhongMaterial map={earthTexture} shininess={12} />
+      {Platform.OS === "ios" ? (
+        <meshBasicMaterial map={earthTexture} />
+      ) : (
+        <meshPhongMaterial map={earthTexture} shininess={12} />
+      )}
     </mesh>
   );
 }
@@ -105,6 +147,7 @@ function Clouds({
     TextureLoader,
     require("../../assets/textures/earth-clouds-2048.jpg"),
   ) as THREE.Texture;
+  cloudsTexture.colorSpace = THREE.SRGBColorSpace;
 
   useFrame(() => {
     if (!cloudsRef.current) return;
@@ -115,12 +158,21 @@ function Clouds({
   return (
     <mesh ref={cloudsRef}>
       <sphereGeometry args={[1.015, 64, 64]} />
-      <meshPhongMaterial
-        map={cloudsTexture}
-        transparent
-        opacity={0.35}
-        depthWrite={false}
-      />
+      {Platform.OS === "ios" ? (
+        <meshBasicMaterial
+          map={cloudsTexture}
+          transparent
+          opacity={0.28}
+          depthWrite={false}
+        />
+      ) : (
+        <meshPhongMaterial
+          map={cloudsTexture}
+          transparent
+          opacity={0.35}
+          depthWrite={false}
+        />
+      )}
     </mesh>
   );
 }
@@ -216,30 +268,233 @@ function EarthGlobeCanvas() {
   );
 }
 
-function EarthGlobeImage() {
+function EarthGlobeGLView() {
+  const [size, setSize] = useState<Size | null>(null);
+  const earthRef = useRef<THREE.Mesh | null>(null);
+  const cloudRef = useRef<THREE.Mesh | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const disposeSceneRef = useRef<(() => void) | null>(null);
+  const isMountedRef = useRef(true);
+  const rotationSpeedRef = useRef<RotationSpeed>({ x: 0, y: 0.004 });
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+
+    if (!width || !height) return;
+
+    setSize((currentSize) => {
+      if (currentSize?.width === width && currentSize?.height === height) {
+        return currentSize;
+      }
+
+      return { width, height };
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      disposeSceneRef.current?.();
+    };
+  }, []);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        rotationSpeedRef.current.y = gestureState.dx * 0.00008;
+        rotationSpeedRef.current.x = gestureState.dy * 0.00008;
+      },
+      onPanResponderRelease: () => {
+        rotationSpeedRef.current.x *= 0.92;
+        rotationSpeedRef.current.y *= 0.92;
+
+        if (Math.abs(rotationSpeedRef.current.y) < 0.001) {
+          rotationSpeedRef.current.y = 0.004;
+        }
+      },
+    }),
+  ).current;
+
+  const onContextCreate = useCallback(
+    async (gl: ExpoWebGLRenderingContext) => {
+      if (!size) return;
+
+      disposeSceneRef.current?.();
+      const restoreExpoGLContext = patchExpoGLContext(gl);
+      const bufferWidth = gl.drawingBufferWidth || size.width;
+      const bufferHeight = gl.drawingBufferHeight || size.height;
+
+      const renderer = new Renderer({
+        gl,
+        antialias: true,
+        alpha: true,
+        width: size.width,
+        height: size.height,
+      });
+      renderer.setSize(size.width, size.height);
+      renderer.setClearColor(0x020617, 1);
+      renderer.debug.checkShaderErrors = false;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        bufferWidth / bufferHeight,
+        0.1,
+        100,
+      );
+      camera.position.set(0, 0, 2.9);
+
+      const textureLoader = new TextureLoader();
+      const earthTexture = textureLoader.load(
+        require("../../assets/textures/earth-day-2048.jpg"),
+      );
+      const cloudTexture = textureLoader.load(
+        require("../../assets/textures/earth-clouds-2048.jpg"),
+      );
+
+      const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
+      const earthMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        map: earthTexture,
+        shininess: 12,
+      });
+      const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      earth.rotation.x = -0.18;
+      earthRef.current = earth;
+      scene.add(earth);
+
+      const cloudGeometry = new THREE.SphereGeometry(1.012, 64, 64);
+      const cloudMaterial = new THREE.MeshPhongMaterial({
+        map: cloudTexture,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+      });
+      const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+      clouds.rotation.x = -0.18;
+      cloudRef.current = clouds;
+      scene.add(clouds);
+
+      const atmosphereGeometry = new THREE.SphereGeometry(1.04, 64, 64);
+      const atmosphereMaterial = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.09,
+        side: THREE.BackSide,
+      });
+      const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+      scene.add(atmosphere);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+      scene.add(ambientLight);
+
+      const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      sunLight.position.set(4, 2, 5);
+      scene.add(sunLight);
+
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 1000;
+      const starPositions = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount * 3; i += 3) {
+        starPositions[i] = (Math.random() - 0.5) * 20;
+        starPositions[i + 1] = (Math.random() - 0.5) * 20;
+        starPositions[i + 2] = (Math.random() - 0.5) * 20;
+      }
+
+      starGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(starPositions, 3),
+      );
+
+      const starMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.015,
+        sizeAttenuation: true,
+      });
+      const stars = new THREE.Points(starGeometry, starMaterial);
+      scene.add(stars);
+
+      const render = () => {
+        if (!isMountedRef.current) return;
+
+        animationFrameRef.current = requestAnimationFrame(render);
+
+        if (earthRef.current) {
+          earthRef.current.rotation.y += rotationSpeedRef.current.y;
+          earthRef.current.rotation.x += rotationSpeedRef.current.x;
+        }
+
+        if (cloudRef.current) {
+          cloudRef.current.rotation.y += rotationSpeedRef.current.y * 1.2;
+          cloudRef.current.rotation.x += rotationSpeedRef.current.x;
+        }
+
+        rotationSpeedRef.current.x *= 0.98;
+
+        if (Math.abs(rotationSpeedRef.current.y) < 0.004) {
+          rotationSpeedRef.current.y += 0.00002;
+        }
+
+        renderer.render(scene, camera);
+        gl.endFrameEXP();
+      };
+
+      render();
+
+      disposeSceneRef.current = () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+
+        earthGeometry.dispose();
+        earthMaterial.dispose();
+        earthTexture.dispose();
+        cloudGeometry.dispose();
+        cloudMaterial.dispose();
+        cloudTexture.dispose();
+        atmosphereGeometry.dispose();
+        atmosphereMaterial.dispose();
+        starGeometry.dispose();
+        starMaterial.dispose();
+        renderer.dispose();
+        restoreExpoGLContext();
+      };
+    },
+    [size],
+  );
+
   return (
-    <View style={[styles.container, styles.imageContainer]}>
-      <View style={styles.starField} />
-      <View style={styles.imageGlobe}>
-        <Image
-          source={require("../../assets/textures/earth-day-2048.jpg")}
-          style={styles.earthImage}
-          resizeMode="cover"
+    <View
+      style={styles.container}
+      onLayout={handleLayout}
+      {...panResponder.panHandlers}
+    >
+      {size ? (
+        <GLView
+          key={`${size.width}x${size.height}`}
+          style={[styles.glView, size]}
+          onContextCreate={onContextCreate}
+          msaaSamples={4}
         />
-        <Image
-          source={require("../../assets/textures/earth-clouds-2048.jpg")}
-          style={styles.cloudImage}
-          resizeMode="cover"
-        />
-        <View style={styles.globeShade} />
-      </View>
+      ) : (
+        <LoadingFallback />
+      )}
     </View>
   );
 }
 
 export default function EarthGlobe() {
   if (Platform.OS === "ios") {
-    return <EarthGlobeImage />;
+    return <EarthGlobeGLView />;
   }
 
   return <EarthGlobeCanvas />;
@@ -249,6 +504,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: 430,
+    position: "relative",
     borderRadius: 28,
     overflow: "hidden",
     backgroundColor: "#020617",
@@ -256,52 +512,8 @@ const styles = StyleSheet.create({
   canvas: {
     flex: 1,
   },
-  imageContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  starField: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: "#020617",
-  },
-  imageGlobe: {
-    width: "78%",
-    maxWidth: 320,
-    aspectRatio: 1,
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "#0f172a",
-    shadowColor: "#38bdf8",
-    shadowOpacity: 0.32,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  earthImage: {
-    width: "122%",
-    height: "100%",
-    marginLeft: "-11%",
-  },
-  cloudImage: {
-    position: "absolute",
-    width: "122%",
-    height: "100%",
-    marginLeft: "-11%",
-    opacity: 0.24,
-  },
-  globeShade: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    borderWidth: 10,
-    borderColor: "rgba(96, 165, 250, 0.18)",
-    borderRadius: 999,
-    backgroundColor: "rgba(2, 6, 23, 0.04)",
+  glView: {
+    alignSelf: "stretch",
   },
   loading: {
     position: "absolute",
