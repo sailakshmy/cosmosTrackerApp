@@ -1,14 +1,19 @@
-import { TextureLoader, THREE } from "expo-three";
-import React, { Suspense, useMemo, useRef } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber/native";
-import type { RootState } from "@react-three/fiber";
-import { SphereGeometry } from "three";
+import {
+  Suspense,
+  useMemo,
+  useRef,
+} from "react";
 import {
   ActivityIndicator,
+  Image,
   PanResponder,
+  Platform,
   StyleSheet,
   View,
 } from "react-native";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber/native";
+import type { RootState } from "@react-three/fiber";
+import { TextureLoader, THREE } from "expo-three";
 
 type RotationSpeed = { x: number; y: number };
 
@@ -18,9 +23,9 @@ const unsupportedPixelStoreParams = new Set([
   0x9243, // UNPACK_COLORSPACE_CONVERSION_WEBGL
 ]);
 
-type ExpoGLContext = ReturnType<THREE.WebGLRenderer["getContext"]>;
+type R3FExpoGLContext = ReturnType<THREE.WebGLRenderer["getContext"]>;
 
-function patchExpoGLContext(gl: ExpoGLContext) {
+const patchR3FExpoGLContext = (gl: R3FExpoGLContext) => {
   const originalPixelStorei = gl.pixelStorei.bind(gl);
   const originalGetProgramInfoLog = gl.getProgramInfoLog.bind(gl);
   const originalGetShaderInfoLog = gl.getShaderInfoLog.bind(gl);
@@ -31,15 +36,16 @@ function patchExpoGLContext(gl: ExpoGLContext) {
     }
 
     originalPixelStorei(pname, param);
-  }) as ExpoGLContext["pixelStorei"];
+  }) as R3FExpoGLContext["pixelStorei"];
 
   gl.getProgramInfoLog = ((program: WebGLProgram) =>
     originalGetProgramInfoLog(program) ??
-    "") as ExpoGLContext["getProgramInfoLog"];
+    "") as R3FExpoGLContext["getProgramInfoLog"];
 
   gl.getShaderInfoLog = ((shader: WebGLShader) =>
-    originalGetShaderInfoLog(shader) ?? "") as ExpoGLContext["getShaderInfoLog"];
-}
+    originalGetShaderInfoLog(shader) ??
+    "") as R3FExpoGLContext["getShaderInfoLog"];
+};
 
 function EarthScene({
   rotationSpeedRef,
@@ -53,7 +59,6 @@ function EarthScene({
       <Stars />
       <Earth rotationSpeedRef={rotationSpeedRef} />
       <Clouds rotationSpeedRef={rotationSpeedRef} />
-      {/* <Atmosphere /> */}
     </>
   );
 }
@@ -81,6 +86,7 @@ function Earth({
       rotationSpeedRef.current.y += 0.00003;
     }
   });
+
   return (
     <mesh ref={earthRef}>
       <sphereGeometry args={[1, 64, 64]} />
@@ -130,6 +136,7 @@ function Stars() {
     }
     return positions;
   }, []);
+
   return (
     <points>
       <bufferGeometry>
@@ -151,14 +158,14 @@ function LoadingFallback() {
   );
 }
 
-export default function EarthGlobe() {
+function EarthGlobeCanvas() {
   const rotationSpeedRef = useRef<RotationSpeed>({
     x: 0,
     y: 0.004,
   });
 
   const handleCanvasCreated = (state: RootState) => {
-    patchExpoGLContext(state.gl.getContext());
+    patchR3FExpoGLContext(state.gl.getContext());
     state.gl.debug.checkShaderErrors = false;
   };
 
@@ -209,8 +216,38 @@ export default function EarthGlobe() {
   );
 }
 
+function EarthGlobeImage() {
+  return (
+    <View style={[styles.container, styles.imageContainer]}>
+      <View style={styles.starField} />
+      <View style={styles.imageGlobe}>
+        <Image
+          source={require("../../assets/textures/earth-day-2048.jpg")}
+          style={styles.earthImage}
+          resizeMode="cover"
+        />
+        <Image
+          source={require("../../assets/textures/earth-clouds-2048.jpg")}
+          style={styles.cloudImage}
+          resizeMode="cover"
+        />
+        <View style={styles.globeShade} />
+      </View>
+    </View>
+  );
+}
+
+export default function EarthGlobe() {
+  if (Platform.OS === "ios") {
+    return <EarthGlobeImage />;
+  }
+
+  return <EarthGlobeCanvas />;
+}
+
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
     height: 430,
     borderRadius: 28,
     overflow: "hidden",
@@ -219,8 +256,59 @@ const styles = StyleSheet.create({
   canvas: {
     flex: 1,
   },
+  imageContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  starField: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "#020617",
+  },
+  imageGlobe: {
+    width: "78%",
+    maxWidth: 320,
+    aspectRatio: 1,
+    borderRadius: 999,
+    overflow: "hidden",
+    backgroundColor: "#0f172a",
+    shadowColor: "#38bdf8",
+    shadowOpacity: 0.32,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  earthImage: {
+    width: "122%",
+    height: "100%",
+    marginLeft: "-11%",
+  },
+  cloudImage: {
+    position: "absolute",
+    width: "122%",
+    height: "100%",
+    marginLeft: "-11%",
+    opacity: 0.24,
+  },
+  globeShade: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderWidth: 10,
+    borderColor: "rgba(96, 165, 250, 0.18)",
+    borderRadius: 999,
+    backgroundColor: "rgba(2, 6, 23, 0.04)",
+  },
   loading: {
-    flex: 1,
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#020617",
