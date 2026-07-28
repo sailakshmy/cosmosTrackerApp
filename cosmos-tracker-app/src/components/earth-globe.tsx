@@ -292,6 +292,8 @@ function EarthGlobeGLView() {
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     return () => {
       isMountedRef.current = false;
 
@@ -326,6 +328,7 @@ function EarthGlobeGLView() {
     async (gl: ExpoWebGLRenderingContext) => {
       if (!size) return;
 
+      isMountedRef.current = true;
       disposeSceneRef.current?.();
       const restoreExpoGLContext = patchExpoGLContext(gl);
       const bufferWidth = gl.drawingBufferWidth || size.width;
@@ -353,11 +356,19 @@ function EarthGlobeGLView() {
 
       const textureLoader = new TextureLoader();
       const earthTexture = textureLoader.load(
-        require("../../assets/textures/earth-day-2048.jpg"),
+        require("../../assets/textures/earth-day.jpg"),
       );
       const cloudTexture = textureLoader.load(
         require("../../assets/textures/earth-clouds-2048.jpg"),
       );
+      earthTexture.wrapS = THREE.RepeatWrapping;
+      earthTexture.repeat.x = -1;
+      earthTexture.offset.x = 1;
+      earthTexture.needsUpdate = true;
+      cloudTexture.wrapS = THREE.RepeatWrapping;
+      cloudTexture.repeat.x = -1;
+      cloudTexture.offset.x = 1;
+      cloudTexture.needsUpdate = true;
 
       const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
       const earthMaterial = new THREE.MeshPhongMaterial({
@@ -366,7 +377,7 @@ function EarthGlobeGLView() {
         shininess: 12,
       });
       const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-      earth.rotation.x = -0.18;
+      earth.rotation.x = 0.18;
       earthRef.current = earth;
       scene.add(earth);
 
@@ -378,7 +389,7 @@ function EarthGlobeGLView() {
         depthWrite: false,
       });
       const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
-      clouds.rotation.x = -0.18;
+      clouds.rotation.x = 0.18;
       cloudRef.current = clouds;
       scene.add(clouds);
 
