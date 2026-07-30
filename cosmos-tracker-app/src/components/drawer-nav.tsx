@@ -77,6 +77,16 @@ export default function DrawerNav() {
           ),
         }}
       /> */}
+      <Drawer.Screen
+        name="nasaImageGallery" // This is the name of the page and must match the url from root
+        options={{
+          drawerLabel: "Nasa Image Gallery",
+          title: "CosmoScope",
+          drawerIcon: ({ color, size }) => (
+            <SymbolView name="scope" tintColor={color} size={size - 2} />
+          ),
+        }}
+      />
     </Drawer>
   );
 }
