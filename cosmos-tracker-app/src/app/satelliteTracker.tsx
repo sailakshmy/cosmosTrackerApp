@@ -46,7 +46,7 @@ const SatelliteTrackerScreen = () => {
                     {/* <View style={styles.globeContainer}>
                       <EarthGlobal />
                     </View> */}
-                    <EarthGlobe />
+                    {/* <EarthGlobe /> */}
                   </View>
                 </View>
               </View>

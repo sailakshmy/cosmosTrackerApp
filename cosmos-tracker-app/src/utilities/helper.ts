@@ -118,3 +118,15 @@ export const fetchNeoDataById = async (neoId: string, signal?: AbortSignal) => {
 export const formatKeyNames = (symbol: string, name: string) => {
   return name?.split(symbol)?.join(" ");
 };
+
+export const fetchNasaImages = async (page = 1, signal?: AbortSignal) => {
+  console.log("Reached here");
+  const nasaImageData = await fetch("http://localhost:8080/nasa/images?page=2");
+  // await fetch(
+  //   `${process.env.EXPO_PUBLIC_APOD_BASE_URL}/images?page=${page}`,
+  //   { signal },
+  // );
+  console.log("Reached here after the call");
+  const nasaImages = await nasaImageData?.json();
+  return nasaImages?.imageData?.collection?.items;
+};

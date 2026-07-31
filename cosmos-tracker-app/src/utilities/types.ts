@@ -64,3 +64,29 @@ export interface SelectedNeo {
   name: string;
   detailList: DetailCardItem[];
 }
+
+export interface ImageData {
+  center: string;
+  date_created: EpochTimeStamp;
+  description: string;
+  keywords: string[];
+  location: string;
+  media_type: string;
+  nasa_id: string;
+  title: string;
+}
+
+export interface ImageLink {
+  href: string;
+  rel: string;
+  render: string;
+  width: number;
+  size: number;
+  height: number;
+}
+
+export interface ImageResponse {
+  href: string;
+  data: ImageData;
+  links: ImageLink[];
+}

@@ -50,7 +50,7 @@ const useApodHook = () => {
 
   const theme = useTheme();
   const [imageLoading, setImageLoading] = useState(isLoading);
-  console.log("Media source", apodData?.src);
+  // console.log("Media source", apodData?.src);
   const imageSource = apodData?.src ? { uri: apodData.src } : undefined;
   console.log("imageSource", imageSource);
   const showImageSkeleton = isLoading || imageLoading || !imageSource;

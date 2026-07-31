@@ -30,8 +30,8 @@ export default function HomeScreen() {
     showImageSkeleton,
     isLoading,
   } = useApodHook();
-  console.log("Here", isLoading);
-  console.log("showImageSkeleton", showImageSkeleton);
+  // console.log("Here", isLoading);
+  // console.log("showImageSkeleton", showImageSkeleton);
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />

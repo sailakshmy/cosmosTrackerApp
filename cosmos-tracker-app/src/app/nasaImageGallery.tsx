@@ -7,11 +7,12 @@ import {
   MaxContentWidth,
   Spacing,
 } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
+import useImageGallery from "@/hooks/useImageGallery";
 import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 
 export default function NasaImageGallery() {
-  const theme = useTheme();
+  const { theme, imageList, isFetching, isLoading } = useImageGallery();
+  console.log("In the component", imageList);
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
