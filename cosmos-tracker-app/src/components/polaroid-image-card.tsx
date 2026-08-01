@@ -1,20 +1,27 @@
 import { Image } from "expo-image";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
-import { StyleSheet } from "react-native";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "@/constants/theme";
 import { ImageResponse } from "@/utilities/types";
 
 type PolaroidImageCardProps = {
   imageDetails: ImageResponse;
+  cardStyle?: StyleProp<ViewStyle>;
 };
 
-const PolaroidImageCard = ({ imageDetails }: PolaroidImageCardProps) => {
+const PolaroidImageCard = ({
+  imageDetails,
+  cardStyle,
+}: PolaroidImageCardProps) => {
   const imageSourceDetails = imageDetails?.links?.filter(
     (link) => link?.href?.includes("thumb") || link?.href?.includes("small"),
   )?.[0];
   return (
-    <ThemedView style={styles.polaroidCardContainer} type="backgroundElement">
+    <ThemedView
+      style={[styles.polaroidCardContainer, cardStyle]}
+      type="backgroundElement"
+    >
       <Image
         style={styles.polaroidImage}
         source={imageSourceDetails?.href}
@@ -45,7 +52,7 @@ const styles = StyleSheet.create({
   polaroidImage: {
     width: "100%",
     aspectRatio: 1,
-    borderRadius: 2,
+    borderRadius: Spacing.two,
   },
 });
 

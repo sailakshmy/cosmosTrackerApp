@@ -14,8 +14,15 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NasaImageGallery() {
-  const { theme, imageList, isFetching, isLoading } = useImageGallery();
+  const { theme, imageList, isFetching, isLoading, width } = useImageGallery();
   // console.log("In the component", imageList);
+
+  const itemWidth =
+    width >= 760
+      ? styles.threeColumnItem
+      : // width >= 520
+        // ?
+        styles.twoColumnItem;
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
@@ -45,13 +52,14 @@ export default function NasaImageGallery() {
                     <ThemedText type="subtitle" themeColor="accent">
                       Nasa Image Gallery
                     </ThemedText>
-                    <View>
+                    <View style={styles.imageContainer}>
                       {imageList?.map((imageData: ImageResponse) => {
-                        console.log("Each item", imageData);
+                        console.log("Each item", imageData?.data?.[0]?.nasa_id);
                         return (
                           <PolaroidImageCard
-                            key={imageData?.data?.[0]?.nasa_id}
+                            key={`${imageData?.data?.[0]?.nasa_id}_${imageData?.data?.[0]?.title}`}
                             imageDetails={imageData}
+                            cardStyle={itemWidth}
                           />
                         );
                       })}
@@ -109,5 +117,20 @@ const styles = StyleSheet.create({
   },
   headingStack: {
     gap: Spacing.three,
+  },
+  imageContainer: {
+    minWidth: 0,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.two,
+  },
+  oneColumnItem: {
+    flexBasis: "100%",
+  },
+  twoColumnItem: {
+    flexBasis: "48%",
+  },
+  threeColumnItem: {
+    flexBasis: "31.5%",
   },
 });

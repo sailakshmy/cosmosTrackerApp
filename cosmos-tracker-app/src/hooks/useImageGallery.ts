@@ -3,6 +3,7 @@ import { useTheme } from "./use-theme";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNasaImages } from "@/utilities/helper";
 import { ImageResponse } from "@/utilities/types";
+import { useWindowDimensions } from "react-native";
 
 export default function useImageGallery() {
   const theme = useTheme();
@@ -12,7 +13,8 @@ export default function useImageGallery() {
   const fetchImages = async (signal: AbortSignal) => {
     const images = await fetchNasaImages(1, signal);
     console.log("Images", images);
-    setImageList((prev) => [...prev, ...images]);
+
+    setImageList((prev) => Array.from(new Set([...prev, ...images])));
     return images;
   };
 
@@ -22,11 +24,13 @@ export default function useImageGallery() {
     retry: 3,
     retryDelay: 100,
   });
+  const { width } = useWindowDimensions();
 
   return {
     theme,
     imageList,
     isFetching,
     isLoading,
+    width,
   };
 }
