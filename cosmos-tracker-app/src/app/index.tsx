@@ -16,7 +16,8 @@ import {
 } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
 import InlineDatePicker from "@/components/date-picker";
-import VideoScreen from "@/components/video-player";
+// import VideoScreen from "@/components/video-player";
+import ImageCard from "@/components/image-card";
 
 export default function HomeScreen() {
   const {
@@ -69,38 +70,16 @@ export default function HomeScreen() {
                   {isLoading ? (
                     <ImageSkeleton style={styles.imageContainer} />
                   ) : (
-                    <>
-                      <ThemedText type="title">{apodData?.title}</ThemedText>
-                      {apodData?.mediaType === "image" && (
-                        <View style={styles.imageContainer}>
-                          <Image
-                            style={styles.image}
-                            source={imageSource}
-                            placeholder={{ blurhash }}
-                            contentFit="contain"
-                            onLoad={() => setImageLoading(false)}
-                            onError={(error) => {
-                              setImageLoading(false);
-                              console.log("Image load error", error);
-                            }}
-                          />
-                          {showImageSkeleton && (
-                            <ImageSkeleton style={styles.imageSkeleton} />
-                          )}
-                        </View>
-                      )}
-                      {apodData?.mediaType === "video" && (
-                        <VideoScreen videoSource={apodData?.src} />
-                      )}
-                      <View style={styles.descriptionStack}>
-                        <ThemedText
-                          style={styles.description}
-                          themeColor="textSecondary"
-                        >
-                          {apodData?.description}
-                        </ThemedText>
-                      </View>
-                    </>
+                    <ImageCard
+                      title={apodData?.title}
+                      description={apodData?.description}
+                      showImageSkeleton={showImageSkeleton}
+                      mediaType={apodData?.mediaType}
+                      imageSource={imageSource?.uri}
+                      setImageLoading={setImageLoading}
+                      videoSource={apodData?.src}
+                      blurhash={blurhash}
+                    />
                   )}
                 </View>
               </View>
@@ -155,9 +134,6 @@ const styles = StyleSheet.create({
   headingStack: {
     gap: Spacing.three,
   },
-  descriptionStack: {
-    gap: Spacing.three,
-  },
   imageContainer: {
     width: "100%",
     aspectRatio: 1,
@@ -166,15 +142,5 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: Spacing.three,
     backgroundColor: "#020617",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  imageSkeleton: {
-    ...StyleSheet.absoluteFill,
-  },
-  description: {
-    textAlign: "center",
   },
 });

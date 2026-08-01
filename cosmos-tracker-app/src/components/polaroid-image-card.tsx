@@ -1,7 +1,12 @@
 import { Image } from "expo-image";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
-import { StyleProp, StyleSheet, ViewStyle } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  TouchableOpacity,
+  ViewStyle,
+} from "react-native";
 import { Spacing } from "@/constants/theme";
 import { ImageResponse } from "@/utilities/types";
 import { useTheme } from "@/hooks/use-theme";
@@ -20,31 +25,35 @@ const PolaroidImageCard = ({
   )?.[0];
   const theme = useTheme();
   return (
-    <ThemedView
-      style={[
-        styles.polaroidCardContainer,
-        cardStyle,
-        {
-          backgroundColor: theme.backgroundElement,
-          borderColor: theme.border,
-          shadowColor: theme.text,
-        },
-      ]}
-      type="backgroundElement"
-    >
-      <Image
-        style={styles.polaroidImage}
-        source={imageSourceDetails?.href}
-        // placeholder={{ blurhash }}
-        contentFit="contain"
-        // onLoad={() => setImageLoading(false)}
-        // onError={(error) => {
-        //   setImageLoading(false);
-        //   console.log("Image load error", error);
-        // }}
-      />
-      <ThemedText type="subtitle">{imageDetails?.data?.[0]?.title}</ThemedText>
-    </ThemedView>
+    <TouchableOpacity activeOpacity={0.85}>
+      <ThemedView
+        style={[
+          styles.polaroidCardContainer,
+          cardStyle,
+          {
+            backgroundColor: theme.backgroundElement,
+            borderColor: theme.border,
+            shadowColor: theme.text,
+          },
+        ]}
+        type="backgroundElement"
+      >
+        <Image
+          style={styles.polaroidImage}
+          source={imageSourceDetails?.href}
+          // placeholder={{ blurhash }}
+          contentFit="contain"
+          // onLoad={() => setImageLoading(false)}
+          // onError={(error) => {
+          //   setImageLoading(false);
+          //   console.log("Image load error", error);
+          // }}
+        />
+        <ThemedText type="subtitle">
+          {imageDetails?.data?.[0]?.title}
+        </ThemedText>
+      </ThemedView>
+    </TouchableOpacity>
   );
 };
 
