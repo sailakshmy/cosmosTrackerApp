@@ -18,11 +18,10 @@ export default function NasaImageGallery() {
   // console.log("In the component", imageList);
 
   const itemWidth =
-    width >= 760
-      ? styles.threeColumnItem
-      : // width >= 520
-        // ?
-        styles.twoColumnItem;
+    width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
+  const columnCount = width >= 760 ? 3 : 2;
+  const columns = Array.from({ length: columnCount }, () => []);
+  imageList?.forEach((item, index) => columns[index % columnCount].push(item));
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
@@ -52,7 +51,7 @@ export default function NasaImageGallery() {
                     <ThemedText type="subtitle" themeColor="accent">
                       Nasa Image Gallery
                     </ThemedText>
-                    <View style={styles.imageContainer}>
+                    {/* <View style={styles.imageContainer}>
                       {imageList?.map((imageData: ImageResponse) => {
                         console.log("Each item", imageData?.data?.[0]?.nasa_id);
                         return (
@@ -63,6 +62,18 @@ export default function NasaImageGallery() {
                           />
                         );
                       })}
+                    </View> */}
+                    <View style={styles.masonryContainer}>
+                      {columns?.map((column, columnIndex) => (
+                        <View key={columnIndex} style={styles.masonryColumn}>
+                          {column.map((imageData: ImageResponse) => (
+                            <PolaroidImageCard
+                              key={`${imageData?.data?.[0]?.nasa_id}_${imageData?.data?.[0]?.title}`}
+                              imageDetails={imageData}
+                            />
+                          ))}
+                        </View>
+                      ))}
                     </View>
                   </View>
                 </View>
@@ -118,12 +129,12 @@ const styles = StyleSheet.create({
   headingStack: {
     gap: Spacing.three,
   },
-  imageContainer: {
-    minWidth: 0,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.two,
-  },
+  // imageContainer: {
+  //   minWidth: 0,
+  //   flexDirection: "row",
+  //   flexWrap: "wrap",
+  //   gap: Spacing.two,
+  // },
   oneColumnItem: {
     flexBasis: "100%",
   },
@@ -132,5 +143,13 @@ const styles = StyleSheet.create({
   },
   threeColumnItem: {
     flexBasis: "31.5%",
+  },
+  masonryContainer: {
+    flexDirection: "row",
+    gap: Spacing.two,
+  },
+  masonryColumn: {
+    flex: 1,
+    gap: Spacing.two,
   },
 });
