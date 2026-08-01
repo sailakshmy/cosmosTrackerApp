@@ -4,6 +4,7 @@ import { ThemedText } from "./themed-text";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "@/constants/theme";
 import { ImageResponse } from "@/utilities/types";
+import { useTheme } from "@/hooks/use-theme";
 
 type PolaroidImageCardProps = {
   imageDetails: ImageResponse;
@@ -17,9 +18,18 @@ const PolaroidImageCard = ({
   const imageSourceDetails = imageDetails?.links?.filter(
     (link) => link?.href?.includes("thumb") || link?.href?.includes("small"),
   )?.[0];
+  const theme = useTheme();
   return (
     <ThemedView
-      style={[styles.polaroidCardContainer, cardStyle]}
+      style={[
+        styles.polaroidCardContainer,
+        cardStyle,
+        {
+          backgroundColor: theme.backgroundElement,
+          borderColor: theme.border,
+          shadowColor: theme.text,
+        },
+      ]}
       type="backgroundElement"
     >
       <Image
