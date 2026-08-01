@@ -7,12 +7,12 @@ import { ImageResponse } from "@/utilities/types";
 export default function useImageGallery() {
   const theme = useTheme();
 
-  const [imageList, setImageList] = useState<ImageResponse>([]);
+  const [imageList, setImageList] = useState<ImageResponse[]>([]);
 
   const fetchImages = async (signal: AbortSignal) => {
     const images = await fetchNasaImages(1, signal);
     console.log("Images", images);
-    setImageList((prev) => [...prev, images]);
+    setImageList((prev) => [...prev, ...images]);
     return images;
   };
 

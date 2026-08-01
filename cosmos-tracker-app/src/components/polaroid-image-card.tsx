@@ -3,13 +3,21 @@ import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { StyleSheet } from "react-native";
 import { Spacing } from "@/constants/theme";
+import { ImageResponse } from "@/utilities/types";
 
-const PoloaroidImageCard = () => {
+type PolaroidImageCardProps = {
+  imageDetails: ImageResponse;
+};
+
+const PolaroidImageCard = ({ imageDetails }: PolaroidImageCardProps) => {
+  const imageSourceDetails = imageDetails?.links?.filter(
+    (link) => link?.href?.includes("thumb") || link?.href?.includes("small"),
+  )?.[0];
   return (
     <ThemedView style={styles.polaroidCardContainer} type="backgroundElement">
       <Image
         style={styles.polaroidImage}
-        // source={imageSource}
+        source={imageSourceDetails?.href}
         // placeholder={{ blurhash }}
         contentFit="contain"
         // onLoad={() => setImageLoading(false)}
@@ -18,7 +26,7 @@ const PoloaroidImageCard = () => {
         //   console.log("Image load error", error);
         // }}
       />
-      <ThemedText type="subtitle">{}</ThemedText>
+      <ThemedText type="subtitle">{imageDetails?.data?.[0]?.title}</ThemedText>
     </ThemedView>
   );
 };
@@ -33,7 +41,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 210,
     elevation: 6,
-    transform: [{ rotate: "-1.5deg" }],
   },
   polaroidImage: {
     width: "100%",
@@ -42,4 +49,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PoloaroidImageCard;
+export default PolaroidImageCard;

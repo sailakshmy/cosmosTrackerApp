@@ -1,3 +1,4 @@
+import PolaroidImageCard from "@/components/polaroid-image-card";
 import { SpaceBackground } from "@/components/space-background";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -8,11 +9,13 @@ import {
   Spacing,
 } from "@/constants/theme";
 import useImageGallery from "@/hooks/useImageGallery";
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { ImageResponse } from "@/utilities/types";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NasaImageGallery() {
   const { theme, imageList, isFetching, isLoading } = useImageGallery();
-  console.log("In the component", imageList);
+  // console.log("In the component", imageList);
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
@@ -42,7 +45,17 @@ export default function NasaImageGallery() {
                     <ThemedText type="subtitle" themeColor="accent">
                       Nasa Image Gallery
                     </ThemedText>
-                    <View></View>
+                    <View>
+                      {imageList?.map((imageData: ImageResponse) => {
+                        console.log("Each item", imageData);
+                        return (
+                          <PolaroidImageCard
+                            key={imageData?.data?.[0]?.nasa_id}
+                            imageDetails={imageData}
+                          />
+                        );
+                      })}
+                    </View>
                   </View>
                 </View>
               </View>

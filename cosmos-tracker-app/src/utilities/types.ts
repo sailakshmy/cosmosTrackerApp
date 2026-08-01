@@ -87,6 +87,6 @@ export interface ImageLink {
 
 export interface ImageResponse {
   href: string;
-  data: ImageData;
+  data: ImageData[];
   links: ImageLink[];
 }
