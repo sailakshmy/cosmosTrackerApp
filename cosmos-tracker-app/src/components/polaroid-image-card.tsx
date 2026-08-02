@@ -10,6 +10,9 @@ import {
 import { Spacing } from "@/constants/theme";
 import { ImageResponse } from "@/utilities/types";
 import { useTheme } from "@/hooks/use-theme";
+import { useState } from "react";
+import Dialog from "./dialog";
+import ImageCard from "./image-card";
 
 type PolaroidImageCardProps = {
   imageDetails: ImageResponse;
@@ -24,36 +27,52 @@ const PolaroidImageCard = ({
     (link) => link?.href?.includes("thumb") || link?.href?.includes("small"),
   )?.[0];
   const theme = useTheme();
+  const [openModal, setOpenModal] = useState(false);
   return (
-    <TouchableOpacity activeOpacity={0.85}>
-      <ThemedView
-        style={[
-          styles.polaroidCardContainer,
-          cardStyle,
-          {
-            backgroundColor: theme.backgroundElement,
-            borderColor: theme.border,
-            shadowColor: theme.text,
-          },
-        ]}
-        type="backgroundElement"
-      >
-        <Image
-          style={styles.polaroidImage}
-          source={imageSourceDetails?.href}
-          // placeholder={{ blurhash }}
-          contentFit="contain"
-          // onLoad={() => setImageLoading(false)}
-          // onError={(error) => {
-          //   setImageLoading(false);
-          //   console.log("Image load error", error);
-          // }}
-        />
-        <ThemedText type="subtitle">
-          {imageDetails?.data?.[0]?.title}
-        </ThemedText>
-      </ThemedView>
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity activeOpacity={0.85} onPress={() => setOpenModal(true)}>
+        <ThemedView
+          style={[
+            styles.polaroidCardContainer,
+            cardStyle,
+            {
+              backgroundColor: theme.backgroundElement,
+              borderColor: theme.border,
+              shadowColor: theme.text,
+            },
+          ]}
+          type="backgroundElement"
+        >
+          <Image
+            style={styles.polaroidImage}
+            source={imageSourceDetails?.href}
+            // placeholder={{ blurhash }}
+            contentFit="contain"
+            // onLoad={() => setImageLoading(false)}
+            // onError={(error) => {
+            //   setImageLoading(false);
+            //   console.log("Image load error", error);
+            // }}
+          />
+          <ThemedText type="subtitle">
+            {imageDetails?.data?.[0]?.title}
+          </ThemedText>
+        </ThemedView>
+      </TouchableOpacity>
+      {openModal && (
+        <Dialog visible={openModal} onClose={() => setOpenModal(false)}>
+          <ImageCard
+            title={imageDetails?.data?.[0]?.title}
+            description={imageDetails?.data?.[0]?.description}
+            mediaType="image"
+            imageSource={imageSourceDetails?.href}
+            showImageSkeleton={false}
+            blurhash=""
+            setImageLoading={() => {}}
+          ></ImageCard>
+        </Dialog>
+      )}
+    </>
   );
 };
 

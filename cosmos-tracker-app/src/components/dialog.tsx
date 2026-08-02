@@ -19,7 +19,7 @@ import { ThemedView } from "./themed-view";
 
 type DialogProps = {
   visible: boolean;
-  title: string;
+  title?: string;
   subtitle?: string;
   children: ReactNode;
   actions?: ReactNode;

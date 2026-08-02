@@ -14,7 +14,7 @@ type ImageCardProps = {
   imageSource: string | undefined;
   blurhash: string;
   setImageLoading: Dispatch<SetStateAction<boolean>>;
-  videoSource: string;
+  videoSource?: string;
 };
 
 const ImageCard = ({
@@ -46,7 +46,9 @@ const ImageCard = ({
           {showImageSkeleton && <ImageSkeleton style={styles.imageSkeleton} />}
         </View>
       )}
-      {mediaType === "video" && <VideoScreen videoSource={videoSource} />}
+      {mediaType === "video" && videoSource && (
+        <VideoScreen videoSource={videoSource} />
+      )}
       <View style={styles.descriptionStack}>
         <ThemedText style={styles.description} themeColor="textSecondary">
           {description}
