@@ -83,7 +83,11 @@ export default function DrawerNav() {
           drawerLabel: "Nasa Image Gallery",
           title: "CosmoScope",
           drawerIcon: ({ color, size }) => (
-            <SymbolView name="scope" tintColor={color} size={size - 2} />
+            <SymbolView
+              name="doc.text.image"
+              tintColor={color}
+              size={size - 2}
+            />
           ),
         }}
       />

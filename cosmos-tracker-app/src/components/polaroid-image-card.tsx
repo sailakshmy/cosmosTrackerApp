@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import {
+  ScrollView,
   StyleProp,
   StyleSheet,
   TouchableOpacity,
@@ -61,15 +62,17 @@ const PolaroidImageCard = ({
       </TouchableOpacity>
       {openModal && (
         <Dialog visible={openModal} onClose={() => setOpenModal(false)}>
-          <ImageCard
-            title={imageDetails?.data?.[0]?.title}
-            description={imageDetails?.data?.[0]?.description}
-            mediaType="image"
-            imageSource={imageSourceDetails?.href}
-            showImageSkeleton={false}
-            blurhash=""
-            setImageLoading={() => {}}
-          ></ImageCard>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <ImageCard
+              title={imageDetails?.data?.[0]?.title}
+              description={imageDetails?.data?.[0]?.description}
+              mediaType="image"
+              imageSource={imageSourceDetails?.href}
+              showImageSkeleton={false}
+              blurhash=""
+              setImageLoading={() => {}}
+            />
+          </ScrollView>
         </Dialog>
       )}
     </>
