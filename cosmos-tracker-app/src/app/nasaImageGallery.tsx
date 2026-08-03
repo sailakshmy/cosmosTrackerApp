@@ -12,6 +12,7 @@ import useImageGallery from "@/hooks/useImageGallery";
 import { ImageResponse } from "@/utilities/types";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { FlashList } from "@shopify/flash-list";
 
 export default function NasaImageGallery() {
   const { theme, imageList, isFetching, isLoading, width } = useImageGallery();
@@ -63,7 +64,7 @@ export default function NasaImageGallery() {
                         );
                       })}
                     </View> */}
-                    <View style={styles.masonryContainer}>
+                    {/* <View style={styles.masonryContainer}>
                       {columns?.map((column, columnIndex) => (
                         <View key={columnIndex} style={styles.masonryColumn}>
                           {column.map((imageData: ImageResponse) => (
@@ -74,7 +75,23 @@ export default function NasaImageGallery() {
                           ))}
                         </View>
                       ))}
-                    </View>
+                    </View> */}
+                    <FlashList
+                      data={imageList}
+                      renderItem={({ item }) => (
+                        <View
+                          key={`${item?.data?.[0]?.nasa_id}_${item?.data?.[0]?.title}`}
+                          style={styles.imageContainer}
+                        >
+                          <PolaroidImageCard
+                            imageDetails={item}
+                            cardStyle={itemWidth}
+                          />
+                        </View>
+                      )}
+                      masonry
+                      numColumns={2}
+                    />
                   </View>
                 </View>
               </View>
@@ -129,12 +146,9 @@ const styles = StyleSheet.create({
   headingStack: {
     gap: Spacing.three,
   },
-  // imageContainer: {
-  //   minWidth: 0,
-  //   flexDirection: "row",
-  //   flexWrap: "wrap",
-  //   gap: Spacing.two,
-  // },
+  imageContainer: {
+    margin: 3,
+  },
   oneColumnItem: {
     flexBasis: "100%",
   },
