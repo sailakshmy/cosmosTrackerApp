@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import PolaroidImageCard from "@/components/polaroid-image-card";
 import { SpaceBackground } from "@/components/space-background";
 import { ThemedText } from "@/components/themed-text";
@@ -9,8 +10,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import useImageGallery from "@/hooks/useImageGallery";
-import { ImageResponse } from "@/utilities/types";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 
@@ -18,7 +18,6 @@ export default function NasaImageGallery() {
   const {
     theme,
     imageList,
-    isFetching,
     isLoading,
     width,
     hasNextPage,
@@ -31,90 +30,64 @@ export default function NasaImageGallery() {
   const itemWidth =
     width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
   const columnCount = width >= 760 ? 3 : 2;
-  const columns = Array.from({ length: columnCount }, () => []);
-  imageList?.forEach((item, index) => columns[index % columnCount].push(item));
+
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <ThemedView style={styles.container}>
-          <SafeAreaView style={styles.safeArea}>
-            <ThemedView
-              type="backgroundElement"
-              style={[
-                styles.heroSection,
-                {
-                  borderColor: theme.border,
-                  backgroundColor:
-                    theme.background === Colors.dark.background
-                      ? "rgba(17, 24, 39, 0.9)"
-                      : "rgba(255, 255, 255, 0.92)",
-                  shadowColor: theme.text,
-                },
-              ]}
-            >
-              <View style={styles.contentStack}>
-                <View style={styles.contentStack}>
-                  <View style={styles.headingStack}>
-                    <ThemedText type="subtitle" themeColor="accent">
-                      Nasa Image Gallery
-                    </ThemedText>
-                    {/* <View style={styles.imageContainer}>
-                      {imageList?.map((imageData: ImageResponse) => {
-                        console.log("Each item", imageData?.data?.[0]?.nasa_id);
-                        return (
-                          <PolaroidImageCard
-                            key={`${imageData?.data?.[0]?.nasa_id}_${imageData?.data?.[0]?.title}`}
-                            imageDetails={imageData}
-                            cardStyle={itemWidth}
-                          />
-                        );
-                      })}
-                    </View> */}
-                    {/* <View style={styles.masonryContainer}>
-                      {columns?.map((column, columnIndex) => (
-                        <View key={columnIndex} style={styles.masonryColumn}>
-                          {column.map((imageData: ImageResponse) => (
-                            <PolaroidImageCard
-                              key={`${imageData?.data?.[0]?.nasa_id}_${imageData?.data?.[0]?.title}`}
-                              imageDetails={imageData}
-                            />
-                          ))}
-                        </View>
-                      ))}
-                    </View> */}
-                    <FlashList
-                      data={imageList}
-                      renderItem={({ item }) => (
-                        <View
-                          key={`${item?.data?.[0]?.nasa_id}_${item?.data?.[0]?.title}`}
-                          style={styles.imageContainer}
-                        >
-                          <PolaroidImageCard
-                            imageDetails={item}
-                            cardStyle={itemWidth}
-                          />
-                        </View>
-                      )}
-                      masonry
-                      numColumns={2}
-                      onEndReachedThreshold={0.2}
-                      onEndReached={() =>
-                        hasNextPage &&
-                        !isFetchingNextPage &&
-                        fetchNextPage({ cancelRefetch: false })
-                      }
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <ThemedView
+            type="backgroundElement"
+            style={[
+              styles.heroSection,
+              {
+                borderColor: theme.border,
+                backgroundColor:
+                  theme.background === Colors.dark.background
+                    ? "rgba(17, 24, 39, 0.9)"
+                    : "rgba(255, 255, 255, 0.92)",
+                shadowColor: theme.text,
+              },
+            ]}
+          >
+            <View style={styles.contentStack}>
+              <ThemedText type="subtitle" themeColor="accent">
+                Nasa Image Gallery
+              </ThemedText>
+              <FlashList
+                style={styles.list}
+                data={imageList}
+                renderItem={({ item }) => (
+                  <View style={styles.imageContainer}>
+                    <PolaroidImageCard
+                      imageDetails={item}
+                      cardStyle={itemWidth}
                     />
                   </View>
-                </View>
-              </View>
-            </ThemedView>
-          </SafeAreaView>
-        </ThemedView>
-      </ScrollView>
+                )}
+                keyExtractor={(item) =>
+                  `${item?.data?.[0]?.nasa_id}_${item?.data?.[0]?.title}`
+                }
+                ListFooterComponent={
+                  isFetchingNextPage || isRefetching || isLoading ? (
+                    <ActivityIndicator color={theme.accent} />
+                  ) : null
+                }
+                masonry
+                numColumns={columnCount}
+                onEndReachedThreshold={0.2}
+                onEndReached={handleEndReached}
+              />
+            </View>
+          </ThemedView>
+        </SafeAreaView>
+      </ThemedView>
     </View>
   );
 }
@@ -123,13 +96,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     position: "relative",
-  },
-  scrollView: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-  scrollContent: {
-    flexGrow: 1,
   },
   container: {
     flexDirection: "row",
@@ -146,6 +112,7 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     alignSelf: "stretch",
+    flex: 1,
     borderWidth: 1,
     borderRadius: Spacing.three,
     padding: Spacing.four,
@@ -157,10 +124,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   contentStack: {
+    flex: 1,
     gap: Spacing.four,
   },
-  headingStack: {
-    gap: Spacing.three,
+  list: {
+    flex: 1,
+    alignSelf: "stretch",
   },
   imageContainer: {
     margin: 3,

@@ -1,22 +1,14 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { useTheme } from "./use-theme";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchNasaImages } from "@/utilities/helper";
-import { ImageResponse } from "@/utilities/types";
 import { useWindowDimensions } from "react-native";
 
 export default function useImageGallery() {
   const theme = useTheme();
 
-  const [imageList, setImageList] = useState<ImageResponse[]>([]);
-  let currentPageNumber = 0;
-
   const fetchImages = async (pageParam = 1, signal: AbortSignal) => {
     const images = await fetchNasaImages(pageParam, signal);
-    currentPageNumber = pageParam;
-    // console.log("Images", images);
-
-    setImageList((prev) => Array.from(new Set([...prev, ...images])));
     return { images, nextPage: pageParam + 1 };
   };
 
@@ -28,12 +20,34 @@ export default function useImageGallery() {
     isFetchingNextPage,
     refetch,
     isRefetching,
+    data,
   } = useInfiniteQuery({
-    queryKey: [currentPageNumber],
+    queryKey: ["nasa-images"],
     queryFn: ({ signal, pageParam }) => fetchImages(pageParam, signal),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage?.nextPage,
+    getNextPageParam: (lastPage) =>
+      lastPage?.images?.length ? lastPage.nextPage : undefined,
   });
+
+  const imageList = useMemo(() => {
+    const seenIds = new Set<string>();
+
+    return (
+      data?.pages
+        ?.flatMap((page) => page.images ?? [])
+        ?.filter((image) => {
+          const id = image?.data?.[0]?.nasa_id ?? image.href;
+
+          if (seenIds.has(id)) {
+            return false;
+          }
+
+          seenIds.add(id);
+          return true;
+        }) ?? []
+    );
+  }, [data]);
+
   const { width } = useWindowDimensions();
 
   return {
