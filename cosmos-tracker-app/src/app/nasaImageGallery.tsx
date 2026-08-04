@@ -15,8 +15,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 
 export default function NasaImageGallery() {
-  const { theme, imageList, isFetching, isLoading, width } = useImageGallery();
-  // console.log("In the component", imageList);
+  const {
+    theme,
+    imageList,
+    isFetching,
+    isLoading,
+    width,
+    hasNextPage,
+    isFetchingNextPage,
+    isRefetching,
+    fetchNextPage,
+  } = useImageGallery();
+  console.log("In the component", imageList?.length);
 
   const itemWidth =
     width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
@@ -91,6 +101,12 @@ export default function NasaImageGallery() {
                       )}
                       masonry
                       numColumns={2}
+                      onEndReachedThreshold={0.2}
+                      onEndReached={() =>
+                        hasNextPage &&
+                        !isFetchingNextPage &&
+                        fetchNextPage({ cancelRefetch: false })
+                      }
                     />
                   </View>
                 </View>
