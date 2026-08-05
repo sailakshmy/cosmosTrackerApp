@@ -78,7 +78,7 @@ export default function DrawerNav() {
         }}
       /> */}
       <Drawer.Screen
-        name="nasaImageGallery" // This is the name of the page and must match the url from root
+        name="imageGallery" // This is the name of the page and must match the url from root
         options={{
           drawerLabel: "Nasa Image Gallery",
           title: "CosmoScope",
