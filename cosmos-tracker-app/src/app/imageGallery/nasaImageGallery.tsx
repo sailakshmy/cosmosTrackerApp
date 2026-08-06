@@ -25,7 +25,7 @@ export default function NasaImageGallery() {
     isRefetching,
     fetchNextPage,
   } = useImageGallery();
-  console.log("In the component", imageList?.length);
+ // console.log("In the component", imageList?.length);
 
   const itemWidth =
     width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
