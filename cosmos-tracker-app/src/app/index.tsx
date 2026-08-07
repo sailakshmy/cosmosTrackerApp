@@ -16,7 +16,6 @@ import {
 } from "@/constants/theme";
 import useApodHook from "@/hooks/useApodHook";
 import InlineDatePicker from "@/components/date-picker";
-// import VideoScreen from "@/components/video-player";
 import ImageCard from "@/components/image-card";
 
 export default function HomeScreen() {
