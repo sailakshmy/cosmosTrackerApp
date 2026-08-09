@@ -69,8 +69,7 @@ export default function DrawerNav() {
       />
       {/* <Drawer.Screen
         name="satelliteTracker" // This is the name of the page and must match the url from root
-        options={{
-          title: "CosmoScope",
+        options={
           drawerIcon: ({ color, size }) => (
             <SymbolView name="scope" tintColor={color} size={size - 2} />
           ),
