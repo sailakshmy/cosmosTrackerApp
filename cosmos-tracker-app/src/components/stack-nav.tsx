@@ -23,6 +23,13 @@ export default function StackNav() {
           title: "Nasa Image Gallery",
         }}
       />
+      <Stack.Screen
+        name="nasaImageDetails"
+        options={{
+          headerBackVisible: true,
+          title: "Nasa Image Gallery",
+        }}
+      />
     </Stack>
   );
 }
