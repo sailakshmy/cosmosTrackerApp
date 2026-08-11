@@ -1,8 +1,10 @@
 import { useTheme } from "@/hooks/use-theme";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 
 export default function StackNav() {
   const theme = useTheme();
+  const router = useRouter();
+  const params = useLocalSearchParams();
   return (
     <Stack
       // See React Navigation documentation for more information on available screenOptions: https://reactnavigation.org/docs/headers/#sharing-common-options-across-screens
@@ -27,7 +29,7 @@ export default function StackNav() {
         name="nasaImageDetails"
         options={{
           headerBackVisible: true,
-          title: "Nasa Image Gallery",
+          title: params.pageTitle,
         }}
       />
     </Stack>

@@ -14,29 +14,31 @@ import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function NasaImageDetails() {
-  const {
-    theme,
-    imageList,
-    isLoading,
-    width,
-    hasNextPage,
-    isFetchingNextPage,
-    isRefetching,
-    fetchNextPage,
-  } = useImageGallery();
+  const theme = useTheme();
+  // const {
+  //   theme,
+  //   imageList,
+  //   isLoading,
+  //   width,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  //   isRefetching,
+  //   fetchNextPage,
+  // } = useImageGallery();
   // console.log("In the component", imageList?.length);
 
-  const itemWidth =
-    width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
-  const columnCount = width >= 760 ? 3 : 2;
+  // const itemWidth =
+  //   width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
+  // const columnCount = width >= 760 ? 3 : 2;
 
-  const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  // const handleEndReached = useCallback(() => {
+  //   if (hasNextPage && !isFetchingNextPage) {
+  //     fetchNextPage();
+  //   }
+  // }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>

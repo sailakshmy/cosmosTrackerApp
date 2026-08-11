@@ -14,6 +14,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useState } from "react";
 import Dialog from "./dialog";
 import ImageCard from "./image-card";
+import { useRouter } from "expo-router";
 
 type PolaroidImageCardProps = {
   imageDetails: ImageResponse;
@@ -29,9 +30,18 @@ const PolaroidImageCard = ({
   )?.[0];
   const theme = useTheme();
   const [openModal, setOpenModal] = useState(false);
+  const router = useRouter();
   return (
     <>
-      <TouchableOpacity activeOpacity={0.85} onPress={() => setOpenModal(true)}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => {
+          router.setParams({
+            pageTitle: imageDetails?.data?.[0]?.title,
+          });
+          router.navigate("/imageGallery/nasaImageDetails", { imageDetails });
+        }}
+      >
         <ThemedView
           style={[
             styles.polaroidCardContainer,
@@ -60,7 +70,7 @@ const PolaroidImageCard = ({
           </ThemedText>
         </ThemedView>
       </TouchableOpacity>
-      {openModal && (
+      {/* {openModal && (
         <Dialog visible={openModal} onClose={() => setOpenModal(false)}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <ImageCard
@@ -74,7 +84,7 @@ const PolaroidImageCard = ({
             />
           </ScrollView>
         </Dialog>
-      )}
+      )} */}
     </>
   );
 };
