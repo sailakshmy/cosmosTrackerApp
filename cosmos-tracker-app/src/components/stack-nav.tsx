@@ -3,7 +3,6 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 
 export default function StackNav() {
   const theme = useTheme();
-  const router = useRouter();
   const params = useLocalSearchParams();
   return (
     <Stack

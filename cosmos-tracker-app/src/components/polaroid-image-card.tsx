@@ -39,7 +39,10 @@ const PolaroidImageCard = ({
           router.setParams({
             pageTitle: imageDetails?.data?.[0]?.title,
           });
-          router.navigate("/imageGallery/nasaImageDetails", { imageDetails });
+          router.navigate({
+            pathname: "/imageGallery/nasaImageDetails",
+            params: { imageDetails },
+          });
         }}
       >
         <ThemedView
