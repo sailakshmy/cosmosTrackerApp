@@ -14,7 +14,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useState } from "react";
 import Dialog from "./dialog";
 import ImageCard from "./image-card";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 
 type PolaroidImageCardProps = {
   imageDetails: ImageResponse;
@@ -31,6 +31,7 @@ const PolaroidImageCard = ({
   const theme = useTheme();
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
+  const navigation = useNavigation();
   return (
     <>
       <TouchableOpacity
@@ -41,7 +42,10 @@ const PolaroidImageCard = ({
           });
           router.navigate({
             pathname: "/imageGallery/nasaImageDetails",
-            params: { imageDetails },
+            // params: { nasaImageDetails: imageDetails },
+          });
+          navigation.setOptions({
+            imageDetails,
           });
         }}
       >

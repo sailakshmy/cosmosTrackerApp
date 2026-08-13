@@ -18,7 +18,7 @@ export default function StackNav() {
       }}
     >
       <Stack.Screen
-        name="nasaInageGallery"
+        name="nasaImageGallery"
         options={{
           headerBackVisible: true,
           title: "Nasa Image Gallery",
