@@ -37,15 +37,27 @@ const PolaroidImageCard = ({
       <TouchableOpacity
         activeOpacity={0.85}
         onPress={() => {
-          router.setParams({
-            pageTitle: imageDetails?.data?.[0]?.title,
-          });
+          // router.setParams({
+          //   pageTitle: imageDetails?.data?.[0]?.title,
+          // });
+          // router.navigate({
+          //   pathname: "/imageGallery/nasaImageDetails",
+          //   // params: { nasaImageDetails: imageDetails },
+          // });
+          // navigation.setOptions({
+          //   imageDetails,
+          //   pageTitle: imageDetails?.data?.[0]?.title,
+          // });
+          // navigation.navigate("nasaImageDetails", {
+          //   imageDetails,
+          // });
           router.navigate({
             pathname: "/imageGallery/nasaImageDetails",
-            // params: { nasaImageDetails: imageDetails },
-          });
-          navigation.setOptions({
-            imageDetails,
+            params: {
+              title: imageDetails?.data?.[0]?.title,
+              description: imageDetails?.data?.[0]?.description,
+              imageHref: imageSourceDetails?.href,
+            },
           });
         }}
       >

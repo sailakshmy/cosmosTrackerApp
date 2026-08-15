@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import PolaroidImageCard from "@/components/polaroid-image-card";
 import { SpaceBackground } from "@/components/space-background";
 import { ThemedText } from "@/components/themed-text";
@@ -15,9 +15,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 
 export default function NasaImageDetails() {
   const theme = useTheme();
+  const navigation = useNavigation();
+  const { title, description, imageHref } = useLocalSearchParams<{
+    title?: string;
+    description?: string;
+    imageHref?: string;
+  }>();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: title ?? "",
+    });
+  }, [navigation, title]);
+  // const parentNavigator = navigation.getParent();
+  // console.log("parent", parentNavigator);
+  // console.log("route", route);
   // const {
   //   theme,
   //   imageList,

@@ -23,7 +23,7 @@ export default function StackNav() {
         name="nasaImageGallery"
         options={{
           // headerBackVisible: true,
-          title: "Nasa Image Gallery",
+          title: "",
           headerBackTitle: "",
         }}
       />
