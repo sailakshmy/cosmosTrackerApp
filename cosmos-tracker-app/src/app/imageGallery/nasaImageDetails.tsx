@@ -16,6 +16,7 @@ import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
 import { useLocalSearchParams, useNavigation } from "expo-router";
+import { ImageSkeleton } from "@/components/image-skeleton";
 
 export default function NasaImageDetails() {
   const theme = useTheme();
@@ -29,6 +30,8 @@ export default function NasaImageDetails() {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: title ?? "",
+      description,
+      imageHref,
     });
   }, [navigation, title]);
   // const parentNavigator = navigation.getParent();
@@ -76,20 +79,25 @@ export default function NasaImageDetails() {
             ]}
           >
             <View style={styles.contentStack}>
-              <ThemedText type="subtitle" themeColor="accent">
+              {/* <ThemedText type="subtitle" themeColor="accent">
                 Nasa Image Gallery
-              </ThemedText>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {/* <ImageCard
-                  title={imageDetails?.data?.[0]?.title}
-                  description={imageDetails?.data?.[0]?.description}
-                  mediaType="image"
-                  imageSource={imageSourceDetails?.href}
-                  showImageSkeleton={false}
-                  blurhash=""
-                  setImageLoading={() => {}}
-                /> */}
-              </ScrollView>
+              </ThemedText> */}
+
+              {title && imageHref && description ? (
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <ImageCard
+                    title={title}
+                    description={description}
+                    mediaType="image"
+                    imageSource={imageHref}
+                    showImageSkeleton={!imageHref}
+                    blurhash=""
+                    setImageLoading={() => {}}
+                  />
+                </ScrollView>
+              ) : (
+                <ImageSkeleton />
+              )}
             </View>
           </ThemedView>
         </SafeAreaView>
