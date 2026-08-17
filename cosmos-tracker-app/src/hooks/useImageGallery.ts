@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTheme } from "./use-theme";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchNasaImages } from "@/utilities/helper";
@@ -49,6 +49,13 @@ export default function useImageGallery() {
   }, [data]);
 
   const { width } = useWindowDimensions();
+  const columnCount = width >= 760 ? 3 : 2;
+
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return {
     theme,
@@ -61,5 +68,7 @@ export default function useImageGallery() {
     isFetchingNextPage,
     refetch,
     isRefetching,
+    columnCount,
+    handleEndReached,
   };
 }

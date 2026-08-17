@@ -24,19 +24,12 @@ export default function NasaImageGallery() {
     isFetchingNextPage,
     isRefetching,
     fetchNextPage,
+    columnCount,
+    handleEndReached,
   } = useImageGallery();
- // console.log("In the component", imageList?.length);
-
+  // console.log("In the component", imageList?.length);
   const itemWidth =
     width >= 760 ? styles.threeColumnItem : styles.twoColumnItem;
-  const columnCount = width >= 760 ? 3 : 2;
-
-  const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <SpaceBackground />
