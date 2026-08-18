@@ -17,23 +17,10 @@ import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { ImageSkeleton } from "@/components/image-skeleton";
+import useNasaImageDetails from "@/hooks/useNasaImageDetails";
 
 export default function NasaImageDetails() {
-  const theme = useTheme();
-  const navigation = useNavigation();
-  const { title, description, imageHref } = useLocalSearchParams<{
-    title?: string;
-    description?: string;
-    imageHref?: string;
-  }>();
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      title: title ?? "",
-      description,
-      imageHref,
-    });
-  }, [navigation, title]);
+  const { theme, title, description, imageHref } = useNasaImageDetails();
   // const parentNavigator = navigation.getParent();
   // console.log("parent", parentNavigator);
   // console.log("route", route);
