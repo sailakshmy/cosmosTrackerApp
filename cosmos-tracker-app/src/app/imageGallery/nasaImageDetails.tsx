@@ -10,17 +10,25 @@ import {
   Spacing,
 } from "@/constants/theme";
 import useImageGallery from "@/hooks/useImageGallery";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  View,
+  Pressable,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { ImageSkeleton } from "@/components/image-skeleton";
 import useNasaImageDetails from "@/hooks/useNasaImageDetails";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function NasaImageDetails() {
   const { theme, title, description, imageHref } = useNasaImageDetails();
+  const router = useRouter();
   // const parentNavigator = navigation.getParent();
   // console.log("parent", parentNavigator);
   // console.log("route", route);
@@ -66,10 +74,22 @@ export default function NasaImageDetails() {
             ]}
           >
             <View style={styles.contentStack}>
-              {/* <ThemedText type="subtitle" themeColor="accent">
-                Nasa Image Gallery
-              </ThemedText> */}
-
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Back to image gallery"
+                hitSlop={10}
+                onPress={() => router.back()}
+                style={({ pressed }) => [
+                  styles.backButton,
+                  {
+                    backgroundColor: theme.backgroundSelected,
+                    borderColor: theme.border,
+                    opacity: pressed ? 0.7 : 1,
+                  },
+                ]}
+              >
+                <Ionicons color={theme.accent} name="chevron-back" size={20} />
+              </Pressable>
               {title && imageHref && description ? (
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <ImageCard
@@ -127,6 +147,14 @@ const styles = StyleSheet.create({
   contentStack: {
     flex: 1,
     gap: Spacing.four,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 20,
+    borderWidth: 1,
   },
   list: {
     flex: 1,

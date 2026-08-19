@@ -8,34 +8,30 @@ export default function StackNav() {
   // const pageTitle = params?.
   return (
     <Stack
-      // See React Navigation documentation for more information on available screenOptions: https://reactnavigation.org/docs/headers/#sharing-common-options-across-screens
       screenOptions={{
-        headerStyle: {
+        headerShown: false,
+        contentStyle: {
           backgroundColor: theme.background,
-        },
-        headerTintColor: theme.text,
-        headerTitleStyle: {
-          fontWeight: "bold",
         },
       }}
     >
       <Stack.Screen
         name="nasaImageGallery"
-        options={{
-          // headerBackVisible: true,
-          title: "",
-          headerBackTitle: "",
-        }}
+        // options={{
+        //   // headerBackVisible: true,
+        //   title: "",
+        //   headerBackTitle: "",
+        // }}
       />
       <Stack.Screen
         name="nasaImageDetails"
-        options={{
-          headerBackVisible: true,
-          title: "",
-          // title: params.pageTitle,
-          headerBackTitle: "",
-          headerBackButtonDisplayMode: "minimal",
-        }}
+        // options={{
+        //   headerBackVisible: true,
+        //   title: "",
+        //   // title: params.pageTitle,
+        //   headerBackTitle: "",
+        //   headerBackButtonDisplayMode: "minimal",
+        // }}
       />
     </Stack>
   );
