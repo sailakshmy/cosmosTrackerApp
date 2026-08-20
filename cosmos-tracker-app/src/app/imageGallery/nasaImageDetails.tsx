@@ -21,7 +21,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { 
+useLocalSearchParams, 
+//useNavigation, 
+useRouter } from "expo-router";
 import { ImageSkeleton } from "@/components/image-skeleton";
 import useNasaImageDetails from "@/hooks/useNasaImageDetails";
 import Ionicons from "@expo/vector-icons/Ionicons";
