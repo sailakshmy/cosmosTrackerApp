@@ -22,7 +22,7 @@ import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
 import { 
-useLocalSearchParams, 
+//useLocalSearchParams, 
 //useNavigation, 
 useRouter } from "expo-router";
 import { ImageSkeleton } from "@/components/image-skeleton";
