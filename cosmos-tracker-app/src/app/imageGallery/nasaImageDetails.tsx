@@ -18,7 +18,7 @@ import {
   Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FlashList } from "@shopify/flash-list";
+// import { FlashList } from "@shopify/flash-list";
 import ImageCard from "@/components/image-card";
 import { useTheme } from "@/hooks/use-theme";
 import { 
